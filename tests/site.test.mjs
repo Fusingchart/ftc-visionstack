@@ -54,3 +54,11 @@ test('lessons render full explanations and fundamentals preserve worked-example 
   assert.match(html, /<th scope="col">Camera frame<\/th>/);
   assert.match(html, /<ol><li>Open the telemetry viewer/);
 });
+
+test('control walkthrough links the worked calculation, Java update, and simulator', async () => {
+  const html = await readFile('dist/course/lesson-6-2/index.html', 'utf8');
+  assert.match(html, /Illustrative calculation for the second fresh frame/);
+  assert.match(html, /10 ms control-loop interval/);
+  assert.match(html, /pid\.update\(tx, dt, newFrame\)/);
+  assert.match(html, /href="\.\.\/\.\.\/tools\/pid\/"/);
+});

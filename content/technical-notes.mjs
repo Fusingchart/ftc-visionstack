@@ -60,4 +60,40 @@ export const technicalNotes = {
     'The portal manages the camera stream and hands frames to processors enabled for that stream. A processor produces observations, while the OpMode reads them at its own cadence. When comparing a camera preview with a processor result, match the scene and timing before deciding the processor ignored something.',
     'For a detection-rate experiment, count an empty fresh list in the denominator. A null read contributes no new frame. For instance, four reads returning null, empty, null, and one accepted detection represent two fresh results and one accepted target. That is one of two frames, even though the loop checked four times.',
   ]],
+  '2-4': ['Start with evidence that survives a restart', [
+    'Write down the hardware name, expected slot and known target before you make a change. Use that same reference target after restarting the OpMode. If the dashboard finds the target but Java shows the wrong slot, the fact that the camera is alive tells you where to look. If Java gets a fresh result with no target, the next useful evidence is the detector overlay for that exact slot.',
+    'When a cable problem is suspected, keep the target fixed and exercise the cable path with the robot disabled. Log the last distinct result and the time since it arrived. That trace can distinguish loss of data from a shorter drop where new frames kept arriving with an empty target list.',
+  ]],
+  '3-4': ['Use dead-simple input traces to test the controller', [
+    'A camera adapter can expose a record with an ID, angle and acquisition time and leave the control loop unaware of the camera class. Write a fake adapter that returns frame 41 twice, then returns a stale frame, then returns a fresh frame for the wrong ID. A good replay can fail before you connect any hardware.',
+    'Specify the expected result at each tick: one accepted distinct observation, a repeat, a stale rejection, and an ID rejection. The last two ticks should request zero and should not advance a settling counter. If you later change camera libraries, replay the same trace against the controller and test its new adapter separately.',
+  ]],
+  '5-2': ['Centroid and box center can disagree under occlusion', [
+    'Imagine a segmented object's loose outline still reaches x = 20 and x = 80, but an occluder removes most of the pixels on the right. The box midpoint remains x = 50 as long as one surviving pixel reaches each edge. The centroid moves left because most of the remaining area is on the left. A one-pixel noisy edge can also move a box midpoint disproportionately.',
+    'Compare the two estimates against the point the intake actually needs to reach. Record errors both with a complete silhouette and with the expected partial view. If neither estimate is stable, use a confidence or shape gate and wait until the robot has a better observation instead of steering harder.',
+  ]],
+  '5-3': ['A gate buys continuity at the cost of reacquisition', [
+    'Suppose a track appears at x = 150 px, then 160 px after 50 ms. With a constant-velocity estimate it should appear near 170 px after another 50 ms, but closer to 180 px if one frame was skipped. A gate drawn around 160 px without accounting for the gap makes a correct observation look like a target switch.',
+    'After a loss, define a short time for prediction and a separate condition for starting a new track. Track identity switches in your log. A run can have good average center error while the robot repeatedly alternates between two similarly colored targets.',
+  ]],
+  '7-3': ['Use measured landmarks to isolate the source of drift', [
+    'Move the robot between two surveyed positions without changing heading. Then rotate it in place. If translation is wrong only after rotation, check the mount offset and orientation. If the same field translation error appears at every heading, check the field origin and known tag poses before touching gain or smoothing.',
+    'A static bench map is enough for this test. Use landmarks that do not move and a clear record of which tags contributed to the estimate. If a moving structure is involved, record the tag pose at the time of observation or keep it in a target-relative calculation.',
+  ]],
+  '8-4': ['Write a transition that makes each bad case observable', [
+    {table:{caption:'One possible bench trace for a stopped fallback.',headers:['State','Event','Next request'],rows:[['Acquire','Wrong tag arrives','Zero drive, stay in acquisition until the deadline.'],['Align','Usable tag with large bearing','Bounded turn, zero forward.'],['Approach','Frame expires','Zero drive, enter fallback.'],['Verify','Fresh readings meet tolerance','Finish with zero drive.']]}},
+    'Test the fault in the exact stage that would otherwise be commanding motion. Occluding the tag during acquisition proves the initial gate. Occluding it during forward travel proves that an already-issued request is actively cleared.',
+  ]],
+  '9-1': ['Define what your filter is allowed to know', [
+    'An offline plot can center a window on a sample and use one value before it and one after. A live controller has no future sample. A trailing three-frame median waits for the second of three new values before reporting a clean step. At 20 frames per second, that can add about 50 ms to the first response after the step arrives.',
+    'Try a real step and a single-frame spike at the same frame rate. Log both the raw and filtered output. If the resulting delay matters near standoff, change the filter or slow the robot rather than judging quality only from how smooth the trace looks.',
+  ]],
+  '10-2': ['Decide what would make the test set too easy', [
+    'Suppose one session records the same yellow piece on a gray practice mat and another records it among yellow tape on the competition-style floor. Randomly splitting adjacent frames gives both sets almost identical examples. Assign whole sessions to splits. Keep a scene with the same yellow tape and no piece so you can measure background-only false triggers.',
+    'If teammates disagree about whether a mostly covered piece should have a box, write one annotation rule and apply it to both splits. Treat ambiguous examples explicitly. Otherwise the evaluation may count a prediction as wrong because the labeling rule changed between recording sessions.',
+  ]],
+  '11-3': ['Report the common case and the slow tail', [
+    'Suppose most usable observations are about 45 ms old but a burst reaches 180 ms while the robot is turning. An average can largely hide the burst. Log age at use and plot a percentile or a small histogram. Keep an independent list of loops that found no usable observation, as those loops have no meaningful accepted-sample age.',
+    'Repeat with telemetry logging enabled and disabled and keep the same camera settings. If frame cadence is unchanged but control-loop intervals become irregular, focus on loop work and log overhead. If the camera itself stops producing fresh frames, look upstream at stream delivery or pipeline workload.',
+  ]],
 };
