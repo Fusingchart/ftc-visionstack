@@ -48,18 +48,3 @@ export function illustrateLesson(path, sections, anchor, fallback) {
 
   });
 }
-
-const projectFigures = {
-  'distance-bearing': placements['1-4']['worked-example'][0],
-  'specific-tag': placements['4-1']['how-corners-become-a-pose'][0],
-  'color': placements['5-1']['tune-the-mask-against-your-hardest-background'][0],
-  'odometry': placements['7-4']['follow-one-delayed-correction-through-a-pose-history'][0],
-};
-
-export function illustrateProject(path, sections) {
-  const illustration = projectFigures[path];
-  if (!illustration) return sections;
-  const [figure, alt, caption] = illustration;
-  return sections.map(([heading, blocks]) =>
-    [heading, heading === 'Run the trial' ? [{figure, alt, caption}, ...blocks] : blocks]);
-}

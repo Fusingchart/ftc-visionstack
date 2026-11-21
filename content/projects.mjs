@@ -1,3 +1,5 @@
+import { projectTrials } from './project-trials.mjs';
+import { relatedFigure } from './course-guides.mjs';
 import { readFileSync } from 'node:fs';
 import { config } from '../site/config.mjs';
 import { refs } from './references.mjs';
@@ -44,6 +46,7 @@ const benchChecks = {
 };
 const github=path=>config.repository+'/blob/main/'+path;
 export const projectPages=entries.map(([id,title,clazz,level,hardware,pipeline,lesson,goal,test,pass,extension])=>{
+  const [trialTitle, trial, interpretation] = projectTrials[id];
   const isWebcam=clazz==='WebcamBenchmark';
   const files=isWebcam ? [clazz] : [clazz,'LimelightLab','Vision',...(id==='tag-approach'?['VisionPracticeAuto','TagRelativePose']:[])];
   const topics = {
@@ -64,6 +67,7 @@ export const projectPages=entries.map(([id,title,clazz,level,hardware,pipeline,l
     sections:[
       ['Set up the bench',[hardware+'.', 'Copy the org directory from ftc-examples/src into TeamCode/src/main/java in your FTC SDK '+config.sdk+' Android Studio project.',isWebcam?'Configure the USB camera as Webcam 1. Use the same tag and a documented mount in the paired Limelight run.':'Add the camera to the hub configuration as limelight. Check the actuator and sensor names for this OpMode in configureActuators. Record the camera firmware with your test results.','Use '+pipeline+'.',{cards:['course/lesson-'+lesson]}]],
       ['Source code',[{code:readFileSync(base+clazz+'.java','utf8')},{links:[...files.map(file=>[file+'.java',github(base+file+'.java')]),...(id==='snapscript'?[['color_blob.py',github('pipelines/color_blob.py')]]:[])]},isWebcam?'The builder configures the tag processor and webcam. The loop processes fresh frame snapshots, gates observation age and writes telemetry. The finally block releases VisionPortal.':'The annotated entry point selects one lab mode. LimelightLab manages hardware, polling, pipeline gates, mode-specific telemetry and optional actuation. Vision implements reusable freshness, targeting, range and controller helpers. Motion examples use an enable hold, deadband or cap, and guaranteed cleanup.']],
+      ['Worked trial',[trialTitle+'.',trial,relatedFigure(lesson),interpretation]],
       ['Run the trial',[test,pass,'The target above is an acceptance criterion for your trial. The published examples were compile-checked against FTC SDK '+config.sdk+' and still need bench hardware validation.']],
       [benchChecks[id][0],[benchChecks[id][1]]],
       ['Extensions',[extension,...(id==='tag-approach'?['VisionPracticeAuto.java is a standalone autonomous practice sequence with acquisition, yaw alignment, approach and fresh-frame standoff verification. The stop state is neutral. Configure the fixture separately and verify motion on blocks before a floor run.']:[])]],

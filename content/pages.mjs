@@ -1,3 +1,4 @@
+import { guideFor } from './site-guides.mjs';
 import { readFileSync } from 'node:fs';
 import { config } from '../site/config.mjs';
 import { modulePages, lessonPages } from './course.mjs';
@@ -31,5 +32,12 @@ export const pages = [
   { path:'feedback', title:'Share a team trial', description:'Use this optional form to prepare a short implementation report.', feedback:true, sections:[['Privacy',['The form keeps entered text in your browser until you choose to copy it or open a public GitHub issue draft. A draft becomes public if you submit it on GitHub. Share team-level details and leave out student names, emails and contact details.']]] },
   { path:'search', title:'Search', description:'Search lessons, examples, tools, and troubleshooting.' },
 ];
+
+for (const page of pages) {
+  const guide = guideFor(page.path);
+  page.sections = page.path === '' || page.path === 'season'
+    ? [...(page.sections ?? []), ...guide]
+    : [...guide, ...(page.sections ?? [])];
+}
 
 pages.push(...modulePages, ...lessonPages, ...toolPages, ...projectPages, ...recipePages, ...issuePages, ...outreachPages);

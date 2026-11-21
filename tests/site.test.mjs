@@ -115,3 +115,18 @@ test('cookbook recipes and troubleshooting pages have illustrative tests', async
     assert.match(html, /<figure class="course-figure">/, path);
   }
 });
+
+test('every project supplies a worked bench trial and figure', async () => {
+  for (const {path} of pages.filter(({path}) => path.startsWith('projects/'))) {
+    const html = await readFile(join('dist',path,'index.html'), 'utf8');
+    assert.match(html, /id="worked-trial"/, path);
+    assert.match(html, /<figure class="course-figure">/, path);
+  }
+});
+
+test('every public page includes a captioned or described teaching figure', async () => {
+  for (const {path} of pages) {
+    const html = await readFile(join('dist',path,'index.html'), 'utf8');
+    assert.match(html, /<figure class="course-figure">[\s\S]*?<img [^>]+alt="[^"]+"/, path);
+  }
+});

@@ -1,7 +1,7 @@
 import { mkdir, writeFile, cp, rm } from 'node:fs/promises';
 import { config } from '../site/config.mjs';
 import { pages } from '../content/pages.mjs';
-import { fieldView, illustrateLesson, illustrateProject } from '../content/figures.mjs';
+import { fieldView, illustrateLesson } from '../content/figures.mjs';
 
 const base = (process.env.SITE_URL ?? config.url).replace(/\/?$/, '/');
 const escape = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -43,7 +43,6 @@ function render(page) {
   };
   let pageSections = page.sections ?? [];
   if (page.lesson) pageSections = illustrateLesson(page.path.split('/lesson-')[1], pageSections, anchor, page.fallbackFigure);
-  if (page.path.startsWith('projects/')) pageSections = illustrateProject(page.path.slice('projects/'.length), pageSections);
 
   const sections = pageSections.map(([heading, body]) => '<section id="' + anchor(heading) + '"><h2>' + escape(heading) + ' <a class="anchor" aria-label="Link to this section" href="#' + anchor(heading) + '">#</a></h2>' + body.map(renderBlock).join('') + '</section>').join('');
   const title = page.path ? page.title + ' | ' + config.name : config.name + ' | FTC Computer Vision';
@@ -82,7 +81,7 @@ function render(page) {
 <body data-root="${root}"><a class="skip" href="#main">Skip to content</a><header><div class="header-inner"><a class="brand" href="${root || './'}"><span aria-hidden="true" class="mark">◈</span> ${escape(config.name)}</a><form role="search" action="${root}search/"><label for="query" class="sr">Search documentation</label><input id="query" name="q" type="search" placeholder="Search documentation"></form><button id="theme" aria-label="Change color theme">Theme</button></div></header>
 <div class="layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation">${navLinks}</nav></details></aside><main id="main"${page.lesson ? ' class="lesson"' : ''}><div class="crumb">${page.path ? link('', 'Home') + (parent ? ' / ' + link(parent,pageByPath.get(parent).title) : '') : escape(config.team)}</div>
 <div class="${page.path ? 'intro' : 'hero'}">${page.path ? '' : '<div class="hero-copy">'}<h1>${escape(page.title)}</h1><p>${escape(page.description)}</p>${page.meta ? '<p class="meta">' + escape(page.meta) + '</p>' : ''}${page.path ? '' : '<div class="actions">' + link('course','Start learning') + link('projects','Browse projects') + link('cookbook','Code cookbook') + '</div></div>' + renderFigure(fieldView, true)}</div>
-${toc}${listing}${sections}${feedback}${page.inlineSimulator ? '' : simulator}${page.tool ? '<script type="module" src="' + root + 'assets/tools.mjs"></script>' : ''}${page.path === 'search' ? '<p id="search-status" role="status"></p><ol id="results"></ol>' : ''}${siblingNav}
+${toc}${listing}${page.path === 'search' ? '<p id="search-status" role="status"></p><ol id="results"></ol>' : ''}${sections}${feedback}${page.inlineSimulator ? '' : simulator}${page.tool ? '<script type="module" src="' + root + 'assets/tools.mjs"></script>' : ''}${siblingNav}
 <footer>${link('about',config.team)} ${link('feedback','Share a team trial')} <a href="${config.repository}">GitHub</a></footer></main></div></body></html>`;
 }
 await rm('dist', { recursive: true, force: true });
