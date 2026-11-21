@@ -1,15 +1,16 @@
+import { simulationLessons } from './simulation-lessons.mjs';
 import { cameraLab } from './camera-lab.mjs';
 const tools = [
-['camera','Camera geometry','See how field of view, focal length, and camera pitch determine where a target appears in an image'],
-['pid','PID auto-alignment','Tune feedback against inertia, drag, noise and delay','Motor effort applies torque to an inertial rotational plant. Damping acts against angular velocity. The controller uses delayed angle observations on its own schedule. The model omits friction, backlash and voltage drop.','Increase latency at fixed gains and watch the response. Reduce Kp, then experiment with derivative gain and measurement noise.'],
-['frames','AprilTag coordinate frames','Compose planar robot, camera and tag poses','Field x points right in the plot, y points up, and positive yaw is counterclockwise. The plot uses meters. The long axis of each frame represents its local positive x. FTC SDK pose values require an explicit conversion before use in this convention.','Rotate the camera 90° without moving the robot and identify how the same tag moves in camera coordinates.'],
-['hsv','HSV threshold explorer','Mask local sample images and inspect connected foreground regions','Hue uses degrees with support for wraparound. Saturation and value are percentages. The boundary overlay uses four-connected foreground pixels and draws bounding boxes. Uploaded images are processed in browser memory and scaled to at most 440 pixels on their longest side.','Try a hue range of 345° to 25° and vary minimum saturation and minimum region size.'],
-['localization','Field localization','Compare encoder drift with gated AprilTag observations','The one-dimensional robot moves at 0.4 m/s. Odometry adds a fixed velocity bias and tags provide periodic noisy field observations with one injected outlier. The scalar filter predicts covariance and gates the innovation before correcting.','Increase the observation interval and lower the gate until legitimate observations are also rejected.'],
-['latency','Vision latency','Compare delayed observations with constant-velocity prediction','The moving observation platform samples a delayed relative position. The predictor uses an adjustable target velocity estimate. Both controllers integrate bounded proportional response. Constant-velocity prediction becomes biased under acceleration.','Set estimated velocity equal to target velocity, then introduce target acceleration. Compare raw and predicted error.'],
-['fusion','Sensor fusion','Compare uncertainty weighting against naive averaging','Encoders provide relative speed, IMU heading projects displacement onto a one-dimensional route, and vision provides field position. The weighted estimator uses a scalar variance update. A deployed 2D estimator would also track yaw, cross-axis covariance and capture-time history.','Increase vision noise and compare the two filter outputs. Increase IMU noise to see how heading uncertainty biases forward projection.'],
+  ['camera','Camera geometry','See how field of view, focal length, and camera pitch determine where a target appears in an image'],
+  ['pid','PID auto-alignment','Tune feedback against inertia, drag, noise and delay'],
+  ['frames','AprilTag coordinate frames','Compose planar robot, camera and tag poses'],
+  ['hsv','HSV threshold explorer','Mask local sample images and inspect connected foreground regions'],
+  ['localization','Field localization','Compare encoder drift with gated AprilTag observations'],
+  ['latency','Vision latency','Compare delayed observations with constant-velocity prediction'],
+  ['fusion','Sensor fusion','Compare uncertainty weighting against naive averaging'],
 ];
-export const toolPages=tools.map(([tool,title,description,model,experiment])=>({
-  path:'tools/'+tool,tool,title,description:description+'.',
-  sections:tool === 'camera' ? cameraLab : [['Model assumptions',[model]],['Try it',[experiment]]],
-  inlineSimulator:tool === 'camera',
+export const toolPages = tools.map(([tool,title,description]) => ({
+  path:'tools/'+tool, tool, title, description:description+'.',
+  sections:tool === 'camera' ? cameraLab : simulationLessons[tool],
+  inlineSimulator:true,
 }));

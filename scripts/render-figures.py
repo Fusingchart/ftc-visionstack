@@ -244,3 +244,52 @@ for theme, palette in PALETTES.items():
     text((target[0]+18,target[1]-60),"(400, 240)",25,MINT)
     text((target[0]+26,target[1]+55),"+80 px",23,MINT)
     save("camera-image-plane")
+
+    start()
+    for x,label,sub in [(45,"Controller","Error → effort"),(360,"Chassis","Effort → turn"),(675,"Camera","Angle → sample")]:
+        box((x,124,x+220,258))
+        text((x+110,143),label,30,bold=True,anchor="ma")
+        text((x+110,207),sub,24,MUTED,anchor="ma")
+    for x in [266,581]: arrow((x,186),(x+90,186),BLUE)
+    line([(783,262),(783,368),(154,368)],LINE,4)
+    arrow((154,368),(154,262),MINT)
+    text((469,385),"Delayed angle measurement",28,MINT,anchor="ma")
+    save("pid-loop")
+
+    start()
+    for x,title,active in [(110,"Edge contact",((0,0),(1,0))),(560,"Corner contact",((0,0),(1,1)))]:
+        text((x,97),title,28,bold=True)
+        for col in range(2):
+            for row in range(2):
+                xx,yy=x+col*103,167+row*103
+                box((xx,yy,xx+100,yy+100),MINT if (col,row) in active else PANEL,LINE,2)
+        text((x,400),"One region" if x < 500 else "Two regions",25)
+    save("mask-connectivity")
+
+    start()
+    box((224,166,653,338),FIELD,LINE,2)
+    line([(79,252),(869,252)],LINE,4)
+    for x, label, color, y in [(439,"Prediction",BLUE,288),(558,"Accepted",MINT,103),(789,"Rejected",GOLD,288)]:
+        dot((x,252),color,10)
+        text((x,y),label,27,color,anchor="ma")
+    text((440,371),"Acceptance band",26,anchor="ma")
+    save("innovation-gate")
+
+    start()
+    line([(82,264),(858,264)],LINE,4)
+    for x,label,color,y in [(148,"Raw camera",BLUE,286),(360,"Partial correction",GOLD,286),(784,"Truth",MINT,286)]:
+        dot((x,264),color,10)
+        text((x,y),label,28,color,anchor="ma")
+    arrow((148,152),(784,152),MINT)
+    text((466,95),"0.15 m full correction",28,MINT,anchor="ma")
+    arrow((148,383),(360,383),GOLD)
+    text((255,395),"0.05 m",24,GOLD,anchor="ma")
+    save("latency-distance")
+
+    start()
+    line([(66,248),(871,248)],LINE,4)
+    for x,name,value,y,color in [(132,"Prediction","1.00 m",279,BLUE),(459,"Equal weights","1.20 m",123,MUTED),(656,"Weighted","1.32 m",279,MINT),(786,"Camera","1.40 m",123,GOLD)]:
+        dot((x,248),color,10)
+        text((x,y),name,27,color,anchor="ma")
+        text((x,y+41),value,24,color,anchor="ma")
+    save("fusion-gain")
