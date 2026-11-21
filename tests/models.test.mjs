@@ -57,3 +57,18 @@ test('camera lab worked example separates distance, resolution, and vertical FOV
     assert.ok(Math.abs(result.y-y) < 1e-9);
   }
 });
+
+test('documented preset outputs agree with the simulator models', async () => {
+  const { workedPresets } = await import('../site/presets.mjs');
+  const camera = project(workedPresets.camera[0].values);
+  near(camera.x,400);
+  near(camera.y,240);
+  const [baseline, delayed] = workedPresets.pid.map(({values})=>pid(values));
+  near(baseline.commands[0][1],0.30);
+  assert.ok(delayed.overshoot > baseline.overshoot);
+  const position = localization(workedPresets.localization[0].values);
+  assert.ok(position.rejected.some(([t,x])=>Math.abs(t-3)<1e-9 && Math.abs(x-2.5)<1e-9));
+  const timing = latency(workedPresets.latency[0].values);
+  near(timing.camera.at(-1)[1]-timing.truth.at(-1)[1],-0.15);
+  near(timing.compensated.at(-1)[1]-timing.truth.at(-1)[1],0);
+});

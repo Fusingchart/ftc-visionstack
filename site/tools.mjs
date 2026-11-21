@@ -1,9 +1,10 @@
+import { workedPresets } from './presets.mjs';
 import { project, pixelFocalLength, compose, inverse, pid, localization, latency, hsv, inHue, components, rad } from './models.mjs';
 
 const mount=document.querySelector('#simulator');
 const create=(name,props={})=>Object.assign(document.createElement(name),props);
 const controls=create('div',{className:'controls'});
-const results=create('div');
+const results=create('div',{id:'simulator-results'});
 const legends=['#27a984','#e07427','#4389e4','#d14b78','#9266e7'];
 const config={
   camera:[['hfov','Horizontal FOV (°)',20,150,70],['vfov','Vertical FOV (°)',20,140,52],['width','Width (px)',160,1920,640,16],['height','Height (px)',120,1080,480,8],['cameraHeight','Camera height (m)',0,2,0.45,.01],['pitch','Pitch up (°)',-60,60,5],['distance','Forward distance (m)',.1,6,2,.05],['lateral','Right offset (m)',-3,3,.5,.05],['targetHeight','Target height (m)',0,2,.35,.01]],
@@ -15,6 +16,14 @@ const config={
 };
 config.fusion=[...config.localization,['imu','IMU heading noise (°)',0,180,10]];
 const params={};
+const inputs = new Map();
+const presetStatus = create('p',{className:'preset-status'});
+presetStatus.setAttribute('role','status');
+let loadSample;
+function clearPreset() {
+  presetStatus.textContent = '';
+  results.classList.remove('example-loaded');
+}
 const svgNS='http://www.w3.org/2000/svg';
 function svg(tag,attrs={}) {
   const node=document.createElementNS(svgNS,tag);
@@ -167,9 +176,14 @@ for(const [key,text,min,max,value,step=1] of config[mount.dataset.tool]) {
   const input=create('input',{type:'range',min,max,value,step});
   const span=create('span',{textContent:text+' · '+value});
   const label=create('label');label.append(span,input);controls.append(label);
+  const sync = () => {
+    params[key] = Number(input.value);
+    span.textContent = text+' · '+input.value;
+  };
+  inputs.set(key,{input,sync});
   input.addEventListener('input',()=>{
-    params[key]=Number(input.value);
-    span.textContent=text+' · '+input.value;
+    sync();
+    clearPreset();
     redraw();
   });
 }
@@ -178,11 +192,22 @@ if(mount.dataset.tool==='hsv') {
   const picker=create('select');
   for(const [index,name] of ['Dark practice surface','Bright practice surface'].entries()) picker.append(new Option(name,index));
   const sampleLabel=create('label',{textContent:'Synthetic sample'});sampleLabel.append(picker); controls.append(sampleLabel);
-  picker.addEventListener('change',()=>{imageRequest++;source=sample(Number(picker.value));redraw();});
   const file=create('input',{type:'file',accept:'image/png,image/jpeg,image/webp'});
   const fileLabel=create('label',{textContent:'Local image'});fileLabel.append(file);controls.append(fileLabel);
   const fileStatus=create('p'); fileStatus.setAttribute('role','status');
   controls.append(fileStatus);
+  loadSample = index => {
+    imageRequest++;
+    picker.value = String(index);
+    file.value = '';
+    fileStatus.textContent = '';
+    source = sample(index);
+  };
+  picker.addEventListener('change',()=>{
+    loadSample(Number(picker.value));
+    clearPreset();
+    redraw();
+  });
   file.addEventListener('change',async()=>{
     const selected=file.files[0], request=++imageRequest;
     if(!selected) return;
@@ -192,9 +217,27 @@ if(mount.dataset.tool==='hsv') {
       const scale=Math.min(1,440/Math.max(image.width,image.height));
       source=create('canvas',{width:Math.max(1,Math.round(scale*image.width)),height:Math.max(1,Math.round(scale*image.height))});
       source.getContext('2d').drawImage(image,0,0,source.width,source.height);
-      image.close();fileStatus.textContent='Image processed locally.';redraw();
+      image.close();fileStatus.textContent='Image processed locally.';clearPreset();redraw();
     } catch {if(request===imageRequest) fileStatus.textContent='Choose a readable PNG, JPEG or WebP image.';}
   });
 }
-mount.append(controls,results);
+const toolbar = create('div',{className:'preset-toolbar'});
+for (const [index, preset] of workedPresets[mount.dataset.tool].entries()) {
+  const label = preset.label ?? 'Load worked example';
+  const button = create('button',{type:'button',textContent:label});
+  button.className = index ? '' : 'primary-preset';
+  button.addEventListener('click',()=>{
+    for (const [key,value] of Object.entries(preset.values)) {
+      const {input,sync} = inputs.get(key);
+      input.value = String(value);
+      sync();
+    }
+    if (preset.sample !== undefined) loadSample(preset.sample);
+    redraw();
+    results.classList.add('example-loaded');
+    presetStatus.textContent = (index ? 'Comparison loaded. ' : 'Worked example loaded. ') + preset.expected;
+  });
+  toolbar.append(button);
+}
+mount.append(toolbar,presetStatus,controls,results);
 redraw();

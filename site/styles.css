@@ -41,3 +41,9 @@ main p, main li, .lesson-table th, .lesson-table td {
 }
 .controls label { min-width: 0; }
 .controls input[type=file] { width: 100%; min-width: 0; }
+
+.preset-toolbar { display:flex; flex-wrap:wrap; gap:.65rem; margin:1rem 0 .4rem; }
+.primary-preset { background:var(--accent); border-color:var(--accent); color:var(--paper); font-weight:700; }
+.preset-status { margin:.4rem 0 1rem; color:var(--muted); }
+.preset-status:empty { margin:0; }
+.example-loaded .readout { border-inline-start:3px solid var(--accent); }

@@ -87,7 +87,7 @@ ${toc}${listing}${page.path === 'search' ? '<p id="search-status" role="status">
 await rm('dist', { recursive: true, force: true });
 await mkdir('dist/assets', { recursive: true });
 await cp('site/figures', 'dist/assets/figures', { recursive: true });
-for (const file of ['styles.css','client.mjs','tools.mjs','models.mjs']) {
+for (const file of ['styles.css','client.mjs','tools.mjs','models.mjs','presets.mjs']) {
   await cp('site/' + file, 'dist/assets/' + file);
 }
 for (const page of pages) {
