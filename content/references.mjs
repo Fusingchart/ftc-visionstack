@@ -2,6 +2,8 @@ export const refs = {
   SDK: ['FTC Robot Controller v12.0', 'https://github.com/FIRST-Tech-Challenge/FtcRobotController/tree/v12.0'],
   LL: ['Limelight FTC Java programming guide', 'https://docs.limelightvision.io/docs/docs-limelight/apis/ftc-programming'],
   VP: ['FTC VisionPortal overview', 'https://ftc-docs.firstinspires.org/en/latest/apriltag/vision_portal/visionportal_overview/visionportal-overview.html'],
+  CLUSTER: ['FIRST AprilTag clusters and BIOBUZZ targeting', 'https://ftc-docs.firstinspires.org/en/latest/tech_tips/tech-tips/tech-tip-apriltag-clusters/tech-tip-apriltag-clusters.html'],
+  SNAP: ['Limelight Python SnapScript pipelines', 'https://docs.limelightvision.io/docs/docs-limelight/pipeline-python/snapscript-pipelines'],
   TAG: ['FTC AprilTag localization and axes', 'https://ftc-docs.firstinspires.org/en/latest/apriltag/vision_portal/apriltag_localization/apriltag-localization.html'],
   CV: ['OpenCV HSV thresholding', 'https://docs.opencv.org/4.x/da/d97/tutorial_threshold_inRange.html'],
   CAL: ['OpenCV camera geometry and calibration', 'https://docs.opencv.org/4.x/d9/d0c/group__calib3d.html'],

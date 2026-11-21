@@ -25,7 +25,7 @@ const entries=[
 const github=path=>config.repository+'/blob/main/'+path;
 export const projectPages=entries.map(([id,title,clazz,level,hardware,pipeline,lesson,goal,test,pass,extension])=>{
   const isWebcam=clazz==='WebcamBenchmark';
-  const files=isWebcam ? [clazz] : [clazz,'LimelightLab','Vision'];
+  const files=isWebcam ? [clazz] : [clazz,'LimelightLab','Vision',...(id==='tag-approach'?['VisionPracticeAuto']:[])];
   const topics = {
     telemetry:'Integration', 'pipeline-switch':'Integration', 'specific-tag':'AprilTags',
     'distance-bearing':'Geometry', color:'Object detection', 'color-neural':'Object detection',
@@ -48,8 +48,8 @@ export const projectPages=entries.map(([id,title,clazz,level,hardware,pipeline,l
       ['Test procedure',[test,'Record one row per trial including configuration, setup distance, pass or failure and raw telemetry. Set aside an unobstructed area for motion examples.']],
       ['Expected results and acceptance',[pass]],
       ['Debugging',['Check the configured names and selected slot first. Display target validity and age separately. If motion sign is wrong, release enable and verify motor direction and target error sign on blocks before resuming.', 'When measurement error grows with distance, verify intrinsics, target dimensions and extrinsics before adjusting control gains.']],
-      ['Extensions',[extension]],
-      ['References',[{links:[refs.SDK,refs.LL,...(isWebcam?[refs.VP,refs.TAG]:[])]}]],
+      ['Extensions',[extension,...(id==='tag-approach'?['VisionPracticeAuto.java is a standalone autonomous practice sequence with acquisition, yaw alignment, approach and fresh-frame standoff verification. The stop state is neutral. Configure the fixture separately and verify motion on blocks before a floor run.']:[])]],
+      ['References',[{links:[refs.SDK,refs.LL,...(isWebcam?[refs.VP,refs.TAG]:[]),...(id==='snapscript'?[refs.SNAP]:[])]}]],
     ],
   };
 });

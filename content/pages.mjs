@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { config } from '../site/config.mjs';
 import { modulePages, lessonPages } from './course.mjs';
 import { toolPages } from './labs.mjs';
@@ -6,6 +7,8 @@ import { recipePages } from './cookbook.mjs';
 import { issuePages } from './troubleshooting.mjs';
 import { outreachPages } from './outreach.mjs';
 import { refs } from './references.mjs';
+
+const clusterCode = 'ftc-examples/src/org/firstinspires/ftc/teamcode/visionstack/BiobuzzClusterViewer.java';
 
 export const pages = [
   { path:'', title:'Computer vision for FTC robots', description:'Learn to detect game pieces, align to AprilTags, and use camera measurements in autonomous. Built by students for FTC teams.', sections:[['Explore FTC vision',[{ cards:['course','projects','cookbook','tools','season'] }]],['Learning paths',[{cards:['start/rookies','start/limelight-auto-aim','start/experienced']}]],['Featured projects',[{cards:['projects/telemetry','projects/rotate','projects/odometry']}]]] },
@@ -17,6 +20,7 @@ export const pages = [
   { path:'season', title:config.season + ' vision', description:'Use current FIRST field references to plan vision experiments.', sections:[
     ['Detect POLLEN and NECTAR',['Section 9.8 of the BIOBUZZ manual lists yellow POLLEN at about 7.1 cm diameter and red and blue NECTAR at about 9.1 cm. Physical pieces vary in shape and size. Use approximate sizes to design test cases and calibrate the actual objects before treating image area as range.', 'Capture field tiles, field tape and partially hidden objects under several light sources. Tune a yellow HSV mask, split red across the hue wrap, and collect blue and red hard negatives. Compare with a detector trained on session-separated images.',{cards:['tools/hsv','projects/color-neural','projects/neural']}]],
     ['Aim at a CELL',[ 'Section 9.9 describes 36h11 AprilTags with an approximately 8.25 cm side. Four tags form a cluster on the bottom of each CELL. The HIVE can tip between two stable positions. Measure in a target-relative frame and allow for changes in visible tags during a match.', 'On a practice fixture, check upward-facing camera clearance and exposure, approach from different bearings, and cancel motion when the chosen cluster is no longer visible. For static field localization, use references whose pose is known at the time of capture.',{cards:['tools/frames','projects/specific-tag','projects/tag-approach']}]],
+    ['VisionPortal CELL cluster example',['The SDK 12.0 season library groups member tags by CELL. The cluster has a name and an estimated reference at the CELL opening. Use Webcam 1 and a known official cluster on a representative practice fixture. This telemetry example reads the cluster in camera-relative coordinates and ignores stale detections.',{code:readFileSync(clusterCode,'utf8')},{links:[refs.CLUSTER,['BiobuzzClusterViewer.java',config.repository+'/blob/main/'+clusterCode]]}]],
     ['Rehearse an approach',[ 'Detect a practice POLLEN, center the target at limited speed, and stop at a measured standoff using an independent distance measurement. Introduce a wrong color, a lost target and an invalid range as separate trials. Use the official game details and robot rules to audit the final autonomous behavior. No match thresholds or field poses ship with these examples.',{cards:['projects/game-piece','course/module-8']}]],
     ['Official season references',['Competition Manual TU10. ARENA section revision TU06.',{links:[refs.GAME,refs.ARENA]}]],
   ] },
