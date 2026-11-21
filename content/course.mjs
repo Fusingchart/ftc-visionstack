@@ -1,7 +1,9 @@
 import { recipePages } from './cookbook.mjs';
 import { issuePages } from './troubleshooting.mjs';
+import { practiceNotes } from './lesson-notes.mjs';
 import { refs } from './references.mjs';
 
+const moduleProjects = ['distance-bearing','pipeline-switch','telemetry','tag-benchmark','color','rotate','odometry','tag-approach','moving-target','snapscript','webcam-comparison','webcam-comparison'];
 const modules = [
 ['Computer vision fundamentals','Build a calibrated angle and range estimator.',[
 ['How computer vision works','SDK','Separate image acquisition, detection, estimation and decision-making','A camera samples light into a timestamped frame. A detector returns observations such as corners or a box. An estimator converts them into quantities the robot can use, such as bearing in degrees. Application logic decides whether to stop, search or turn. Keep the acquisition timestamp with the observation so downstream code can reject old frames.','At 20 frames/s, consecutive exposures are about 50 ms apart. A 100 Hz control loop may inspect the same observation five times.','Record frame identifiers alongside control-loop ticks.','Explain why counting five polls as five successful detections produces a false stability criterion.'],
@@ -79,7 +81,7 @@ const modules = [
 
 export const modulePages = modules.map(([title, project], i) => ({
   path:'course/module-' + (i+1), title, description:project,
-  sections:[['Core lessons',[{cards:modules[i][2].map((_,j)=>'course/lesson-' + (i+1) + '-' + (j+1))}]]],
+  sections:[['Core lessons',[{cards:modules[i][2].map((_,j)=>'course/lesson-' + (i+1) + '-' + (j+1))}]],['Module project',[project,{cards:['projects/'+moduleProjects[i]]}]]],
 }));
 const labs = { '1-2':'camera', '1-4':'camera', '4-3':'frames', '5-1':'hsv', '5-2':'hsv', '6-1':'pid', '6-2':'pid', '7-1':'frames', '7-4':'fusion', '8-3':'localization', '9-3':'latency', '9-4':'latency' };
 const paths = modules.flatMap((module,i)=>module[2].map((_,j)=>'course/lesson-' + (i+1) + '-' + (j+1)));
@@ -96,12 +98,12 @@ export const lessonPages = modules.flatMap(([module, project, lessons],i)=>lesso
     sections:[
       ['Learning objective',[objective + '.',{cards:[modulePages[i].path]}]],
       ['Prerequisites',[index ? 'The linked lesson gives the immediate background. Read it if its main measurement or technique is unfamiliar.' : 'Basic arithmetic and familiarity with the FTC Robot Controller and Driver Station.',...(index ? [{cards:[paths[index-1]]}] : [])]],
-      ['How it works',[concept]],
+      ['How it works',[concept,practiceNotes[i][j]]],
       ['Worked example',[example]],
       ...(recipes.length ? [['Java application',[recipes[0].description,recipes[0].sections[1][1][0],{cards:recipes.map(page=>page.path)}]]] : []),
       ...(issues.length ? [['Common mistakes',[{cards:issues.map(page=>page.path)}]]] : []),
       ...(tool ? [['Interactive lab',[{cards:['tools/'+tool]}]]] : []),
-      ['Robot lab',[exercise, 'Module project. ' + project]],
+      ['Robot lab',[exercise,{cards:['projects/'+moduleProjects[i]]}]],
       ['Check your understanding',[assessment]],
       ['References',[{links:sources.split(' ').map(key=>refs[key])}]],
     ],
