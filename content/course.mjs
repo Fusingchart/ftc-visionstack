@@ -1,3 +1,4 @@
+import { controlChapter } from './control-chapter.mjs';
 import { fieldLessons } from './field-lessons.mjs';
 import { robotLessons } from './robot-lessons.mjs';
 import { benchLessons } from './bench-lessons.mjs';
@@ -98,18 +99,19 @@ export const lessonPages = modules.flatMap(([,,lessons],i)=>lessons.map(([title,
   const deepDive = benchLessons[lessonNumber] ?? robotLessons[lessonNumber] ?? fieldLessons[lessonNumber];
   if (i !== 0 && !deepDive) throw new Error('Missing lesson explanation for ' + lessonNumber);
   const difficulty = i<3 ? 'Beginner' : i<7 ? 'Intermediate' : 'Advanced';
+  const authored = i === 0 ? fundamentals[j] : controlChapter[lessonNumber];
   return {
     path,title,description:objective + '.',meta:difficulty + ' · Module ' + (i+1),
     lesson:true,
     siblings:[paths[index-1], paths[index+1]],
-    sections:i === 0 ? [...fundamentals[j], ['References',[{links:sources.split(' ').map(key=>refs[key])}]]] : [
+    sections:[...(authored ?? [
       [deepDive[0], [deepDive[1][0]]],
       ['Worked example',deepDive[1].slice(1)],
       ...(recipes.length ? [['Java application',[recipes[0].description,recipes[0].sections[1][1][0],{cards:recipes.map(page=>page.path)}]]] : []),
       ...(issues.length ? [['Common mistakes',[{cards:issues.map(page=>page.path)}]]] : []),
       ...(tool ? [['Interactive lab',[{cards:['tools/'+tool]}]]] : []),
       ['Try it',[exercise,assessment,{cards:['projects/'+moduleProjects[i]]}]],
-      ['References',[{links:sources.split(' ').map(key=>refs[key])}]],
+    ]), ['References',[{links:sources.split(' ').map(key=>refs[key])}]],
     ],
   };
 }));
