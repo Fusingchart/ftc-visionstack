@@ -90,3 +90,20 @@ test('Camera Geometry embeds one simulator and all three labeled teaching figure
     assert.ok((await stat('dist/assets/figures/'+figure+'-dark.webp')).isFile());
   }
 });
+
+test('every curriculum lesson and module has a teaching illustration', async () => {
+  for (const {path} of pages.filter(({path}) => /^course\/(lesson|module)-/.test(path))) {
+    const html = await readFile(join('dist',path,'index.html'), 'utf8');
+    assert.match(html, /<figure class="course-figure">/, path);
+    assert.match(html, /<figcaption>/, path);
+  }
+});
+
+test('all seven simulators have an inline exercise and documented worked example', async () => {
+  for (const {path} of pages.filter(({tool}) => tool)) {
+    const html = await readFile(join('dist',path,'index.html'), 'utf8');
+    assert.equal([...html.matchAll(/id="simulator"/g)].length,1,path);
+    assert.match(html, /id="worked-example"/, path);
+    assert.match(html, /<figure class="course-figure">/, path);
+  }
+});

@@ -32,9 +32,12 @@ const placements = {
   ]},
 };
 
-export function illustrateLesson(path, sections, anchor) {
+export function illustrateLesson(path, sections, anchor, fallback) {
   const figures = placements[path];
-  if (!figures) return sections;
+  if (!figures) {
+    return sections.map(([heading, blocks], index) =>
+      [heading, index === 0 ? [blocks[0], fallback, ...blocks.slice(1)] : blocks]);
+  }
   return sections.map(([heading, blocks]) => {
     const illustrations = figures[anchor(heading)] ?? [];
     if (!illustrations.length) return [heading, blocks];

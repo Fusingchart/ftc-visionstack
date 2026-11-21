@@ -1,3 +1,4 @@
+import { moduleGuide, courseFigure } from './course-guides.mjs';
 import { technicalNotes } from './technical-notes.mjs';
 import { controlChapter } from './control-chapter.mjs';
 import { fieldLessons } from './field-lessons.mjs';
@@ -86,7 +87,7 @@ const modules = [
 
 export const modulePages = modules.map(([title, project], i) => ({
   path:'course/module-' + (i+1), title, description:project,
-  sections:[['Core lessons',[{cards:modules[i][2].map((_,j)=>'course/lesson-' + (i+1) + '-' + (j+1))}]],['Module project',[project,{cards:['projects/'+moduleProjects[i]]}]]],
+  sections:[...moduleGuide[i],['Core lessons',[{cards:modules[i][2].map((_,j)=>'course/lesson-' + (i+1) + '-' + (j+1))}]],['Module project',[project,{cards:['projects/'+moduleProjects[i]]}]]],
 }));
 const labs = { '1-2':'camera', '1-4':'camera', '4-3':'frames', '5-1':'hsv', '5-2':'hsv', '6-1':'pid', '6-2':'pid', '7-1':'frames', '7-4':'fusion', '8-3':'localization', '9-3':'latency', '9-4':'latency' };
 const paths = modules.flatMap((module,i)=>module[2].map((_,j)=>'course/lesson-' + (i+1) + '-' + (j+1)));
@@ -105,6 +106,7 @@ export const lessonPages = modules.flatMap(([,,lessons],i)=>lessons.map(([title,
   return {
     path,title,description:objective + '.',meta:difficulty + ' · Module ' + (i+1),
     lesson:true,
+    fallbackFigure:courseFigure(i,j),
     siblings:[paths[index-1], paths[index+1]],
     sections:[...(authored ?? [
       [deepDive[0], [deepDive[1][0]]],

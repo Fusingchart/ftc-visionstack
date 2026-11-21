@@ -42,7 +42,7 @@ function render(page) {
     return cards(block.cards);
   };
   let pageSections = page.sections ?? [];
-  if (page.lesson) pageSections = illustrateLesson(page.path.split('/lesson-')[1], pageSections, anchor);
+  if (page.lesson) pageSections = illustrateLesson(page.path.split('/lesson-')[1], pageSections, anchor, page.fallbackFigure);
   if (page.path.startsWith('projects/')) pageSections = illustrateProject(page.path.slice('projects/'.length), pageSections);
 
   const sections = pageSections.map(([heading, body]) => '<section id="' + anchor(heading) + '"><h2>' + escape(heading) + ' <a class="anchor" aria-label="Link to this section" href="#' + anchor(heading) + '">#</a></h2>' + body.map(renderBlock).join('') + '</section>').join('');
