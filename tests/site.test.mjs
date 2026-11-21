@@ -68,10 +68,12 @@ test('all ten course illustrations appear with alt text and lesson captions', as
   const assets = new Set();
   for (const route of routes) {
     const html = await readFile(join('dist', route, 'index.html'), 'utf8');
-    const figures = [...html.matchAll(/<figure class="course-figure"><img src="[^"]+\/figures\/([^"]+)"[^>]+alt="([^"]+)"[^>]*>(.*?)<\/figure>/g)];
+    const figures = [...html.matchAll(/<figure class="course-figure"><picture><source data-dark-figure[^>]*srcset="([^"]+)"[^>]*><img src="[^"]+\/figures\/([^"]+)"[^>]+alt="([^"]+)"[^>]*>(.*?)<\/figure>/g)];
     assert.ok(figures.length, route);
-    for (const [, asset, alt, caption] of figures) {
+    for (const [, dark, asset, alt, caption] of figures) {
       assets.add(asset);
+      assert.ok(dark.endsWith(asset.replace('-light.webp', '-dark.webp')), asset);
+      assert.ok((await stat(join('dist/assets/figures', dark.split('/').at(-1)))).isFile(), dark);
       assert.ok(alt.length > 40, asset);
       if (route) assert.match(caption, /<figcaption>.+<\/figcaption>/);
     }

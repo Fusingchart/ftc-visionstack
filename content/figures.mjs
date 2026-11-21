@@ -37,7 +37,12 @@ export function illustrateLesson(path, sections, anchor) {
   if (!figures) return sections;
   return sections.map(([heading, blocks]) => {
     const illustrations = figures[anchor(heading)] ?? [];
-    return [heading, [...blocks, ...illustrations.map(([figure,alt,caption]) => ({figure,alt,caption}))]];
+    if (!illustrations.length) return [heading, blocks];
+    const table = blocks.findIndex(block => typeof block === 'object' && block.table);
+    const insertAt = table < 0 ? 1 : table + 1;
+    const images = illustrations.map(([figure, alt, caption]) => ({figure, alt, caption}));
+    return [heading, [...blocks.slice(0, insertAt), ...images, ...blocks.slice(insertAt)]];
+
   });
 }
 

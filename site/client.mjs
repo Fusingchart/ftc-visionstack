@@ -1,10 +1,18 @@
 const root = document.body.dataset.root;
 const theme = document.querySelector('#theme');
 try { document.documentElement.dataset.theme = localStorage.getItem('theme') ?? ''; } catch {}
+const darkFigureSources = document.querySelectorAll('[data-dark-figure]');
+function syncFigures() {
+  const selected = document.documentElement.dataset.theme;
+  const media = selected === 'dark' ? 'all' : selected === 'light' ? 'not all' : '(prefers-color-scheme: dark)';
+  for (const source of darkFigureSources) source.media = media;
+}
+syncFigures();
 theme.addEventListener('click', () => {
   const current = document.documentElement.dataset.theme || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
   const next = current === 'dark' ? 'light' : 'dark';
   document.documentElement.dataset.theme = next;
+  syncFigures();
   try { localStorage.setItem('theme', next); } catch {}
   theme.textContent = next === 'dark' ? 'Light mode' : 'Dark mode';
 });
