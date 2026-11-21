@@ -48,3 +48,12 @@ test('HSV conversion, hue wrap, and component boundary respect image rows',()=>{
   assert.equal(regions.length,2);
   assert.deepEqual(regions.map(region=>region.edge),[[2],[3]]);
 });
+
+test('camera lab worked example separates distance, resolution, and vertical FOV', () => {
+  const baseline = {hfov:90,vfov:60,width:640,height:480,cameraHeight:0.45,pitch:0,distance:2,lateral:0.5,targetHeight:0.45};
+  for (const [change, x,y] of [[{},400,240],[{distance:4},360,240],[{width:320},200,240],[{vfov:80},400,240]]) {
+    const result = project({...baseline,...change});
+    assert.ok(Math.abs(result.x-x) < 1e-9);
+    assert.ok(Math.abs(result.y-y) < 1e-9);
+  }
+});

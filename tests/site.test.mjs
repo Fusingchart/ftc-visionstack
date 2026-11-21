@@ -80,3 +80,13 @@ test('all ten course illustrations appear with alt text and lesson captions', as
   }
   assert.equal(assets.size, 10);
 });
+
+test('Camera Geometry embeds one simulator and all three labeled teaching figures', async () => {
+  const html = await readFile('dist/tools/camera/index.html', 'utf8');
+  assert.equal([...html.matchAll(/id="simulator"/g)].length, 1);
+  assert.ok(html.indexOf('id="simulator"') < html.indexOf('id="field-of-view-and-focal-length"'));
+  for (const figure of ['camera-fov','camera-focal-triangle','camera-image-plane']) {
+    assert.match(html, new RegExp(figure+'-light\\.webp'));
+    assert.ok((await stat('dist/assets/figures/'+figure+'-dark.webp')).isFile());
+  }
+});

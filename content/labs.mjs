@@ -1,5 +1,6 @@
+import { cameraLab } from './camera-lab.mjs';
 const tools = [
-['camera','Camera geometry','Project a point into a calibrated pinhole image','Independent horizontal and vertical FOV set pixel focal lengths. Coordinates begin in a frame with x right, y up and z forward. Pitch changes both depth and image elevation. Distortion, shutter effects and occlusion are omitted.','With zero pitch and equal camera and target heights, increase forward distance to move an off-center target toward the image center.'],
+['camera','Camera geometry','See how field of view, focal length, and camera pitch determine where a target appears in an image'],
 ['pid','PID auto-alignment','Tune feedback against inertia, drag, noise and delay','Motor effort applies torque to an inertial rotational plant. Damping acts against angular velocity. The controller uses delayed angle observations on its own schedule. The model omits friction, backlash and voltage drop.','Increase latency at fixed gains and watch the response. Reduce Kp, then experiment with derivative gain and measurement noise.'],
 ['frames','AprilTag coordinate frames','Compose planar robot, camera and tag poses','Field x points right in the plot, y points up, and positive yaw is counterclockwise. The plot uses meters. The long axis of each frame represents its local positive x. FTC SDK pose values require an explicit conversion before use in this convention.','Rotate the camera 90° without moving the robot and identify how the same tag moves in camera coordinates.'],
 ['hsv','HSV threshold explorer','Mask local sample images and inspect connected foreground regions','Hue uses degrees with support for wraparound. Saturation and value are percentages. The boundary overlay uses four-connected foreground pixels and draws bounding boxes. Uploaded images are processed in browser memory and scaled to at most 440 pixels on their longest side.','Try a hue range of 345° to 25° and vary minimum saturation and minimum region size.'],
@@ -9,5 +10,6 @@ const tools = [
 ];
 export const toolPages=tools.map(([tool,title,description,model,experiment])=>({
   path:'tools/'+tool,tool,title,description:description+'.',
-  sections:[['Model assumptions',[model]],['Try it',[experiment]]],
+  sections:tool === 'camera' ? cameraLab : [['Model assumptions',[model]],['Try it',[experiment]]],
+  inlineSimulator:tool === 'camera',
 }));

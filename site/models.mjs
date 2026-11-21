@@ -2,14 +2,18 @@ export const rad = degrees => degrees * Math.PI / 180;
 export const deg = radians => radians * 180 / Math.PI;
 export const clamp = (value,lo,hi) => Math.min(hi,Math.max(lo,value));
 
+export function pixelFocalLength(sizePx, fieldOfViewDeg) {
+  return (sizePx / 2) / Math.tan(rad(fieldOfViewDeg / 2));
+}
+
 export function project({hfov,vfov,width,height,cameraHeight,pitch,distance,lateral,targetHeight}) {
   const angle = rad(pitch), up = targetHeight-cameraHeight;
   const z = distance*Math.cos(angle)+up*Math.sin(angle);
   const y = distance*Math.sin(angle)-up*Math.cos(angle);
   if (z <= 0) return null;
   return {
-    x: width/2 * (1+lateral/z/Math.tan(rad(hfov/2))),
-    y: height/2 * (1+y/z/Math.tan(rad(vfov/2))),
+    x: width/2 + pixelFocalLength(width,hfov) * lateral/z,
+    y: height/2 + pixelFocalLength(height,vfov) * y/z,
     bearing: deg(Math.atan2(lateral,z)), elevation: deg(Math.atan2(-y,z)),
   };
 }

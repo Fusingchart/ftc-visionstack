@@ -25,8 +25,10 @@ function render(page) {
     const img = '<img src="' + path + '-light.webp" width="940" height="400" alt="' + escape(alt) + '" decoding="async"' + (eager ? ' fetchpriority="high"' : ' loading="lazy"') + '>';
     return '<figure class="course-figure"><picture>' + source + img + '</picture>' + (caption ? '<figcaption>' + escape(caption) + '</figcaption>' : '') + '</figure>';
   };
+  const simulator = page.tool ? '<div id="simulator" data-tool="' + escape(page.tool) + '"></div>' : '';
   const renderBlock = block => {
     if (typeof block === 'string') return '<p>' + escape(block) + '</p>';
+    if (block.simulator) return simulator;
     if (block.figure) return renderFigure(block);
     if (block.code) return '<div class="code"><button data-copy>Copy code</button><pre tabindex="0" aria-label="Source code"><code>' + escape(block.code) + '</code></pre></div>';
     if (block.links) return '<ul>' + block.links.map(([label, url]) => '<li><a href="' + escape(url) + '">' + escape(label) + '</a></li>').join('') + '</ul>';
@@ -80,7 +82,7 @@ function render(page) {
 <body data-root="${root}"><a class="skip" href="#main">Skip to content</a><header><div class="header-inner"><a class="brand" href="${root || './'}"><span aria-hidden="true" class="mark">◈</span> ${escape(config.name)}</a><form role="search" action="${root}search/"><label for="query" class="sr">Search documentation</label><input id="query" name="q" type="search" placeholder="Search documentation"></form><button id="theme" aria-label="Change color theme">Theme</button></div></header>
 <div class="layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation">${navLinks}</nav></details></aside><main id="main"${page.lesson ? ' class="lesson"' : ''}><div class="crumb">${page.path ? link('', 'Home') + (parent ? ' / ' + link(parent,pageByPath.get(parent).title) : '') : escape(config.team)}</div>
 <div class="${page.path ? 'intro' : 'hero'}">${page.path ? '' : '<div class="hero-copy">'}<h1>${escape(page.title)}</h1><p>${escape(page.description)}</p>${page.meta ? '<p class="meta">' + escape(page.meta) + '</p>' : ''}${page.path ? '' : '<div class="actions">' + link('course','Start learning') + link('projects','Browse projects') + link('cookbook','Code cookbook') + '</div></div>' + renderFigure(fieldView, true)}</div>
-${toc}${listing}${sections}${feedback}${page.tool ? '<div id="simulator" data-tool="' + page.tool + '"></div><script type="module" src="' + root + 'assets/tools.mjs"></script>' : ''}${page.path === 'search' ? '<p id="search-status" role="status"></p><ol id="results"></ol>' : ''}${siblingNav}
+${toc}${listing}${sections}${feedback}${page.inlineSimulator ? '' : simulator}${page.tool ? '<script type="module" src="' + root + 'assets/tools.mjs"></script>' : ''}${page.path === 'search' ? '<p id="search-status" role="status"></p><ol id="results"></ol>' : ''}${siblingNav}
 <footer>${link('about',config.team)} ${link('feedback','Share a team trial')} <a href="${config.repository}">GitHub</a></footer></main></div></body></html>`;
 }
 await rm('dist', { recursive: true, force: true });

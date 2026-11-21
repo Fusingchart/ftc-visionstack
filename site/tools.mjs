@@ -1,4 +1,4 @@
-import { project, compose, inverse, pid, localization, latency, hsv, inHue, components, rad } from './models.mjs';
+import { project, pixelFocalLength, compose, inverse, pid, localization, latency, hsv, inHue, components, rad } from './models.mjs';
 
 const mount=document.querySelector('#simulator');
 const create=(name,props={})=>Object.assign(document.createElement(name),props);
@@ -64,12 +64,16 @@ function redraw() {
     case 'camera': {
       const value=project(params);
       const frame=graphic('Camera image bounds, optical axis and projected target');
-      frame.append(svg('rect',{x:35,y:25,width:580,height:250,fill:'none',stroke:'currentColor'}));
+      const scale = Math.min(580/params.width, 250/params.height);
+      const width = params.width * scale, height = params.height * scale;
+      const left = (650-width)/2, top = (300-height)/2;
+      frame.append(svg('rect',{x:left,y:top,width,height,fill:'none',stroke:'currentColor'}));
       frame.append(svg('path',{d:'M315 150h20 M325 140v20',stroke:'currentColor'}));
-      if (!value) {readout('Target is behind the image plane.');break;}
+      const focus = 'Focal length: fₓ '+fixed(pixelFocalLength(params.width,params.hfov))+' px · fᵧ '+fixed(pixelFocalLength(params.height,params.vfov))+' px';
+      if (!value) {readout(focus+'\nTarget is at or behind the camera’s forward projection limit.');break;}
       const inside=value.x>=0 && value.x<=params.width && value.y>=0 && value.y<=params.height;
-      if(inside) frame.append(svg('circle',{cx:35+580*value.x/params.width,cy:25+250*value.y/params.height,r:8,fill:legends[1]}));
-      readout('Pixel ('+fixed(value.x)+', '+fixed(value.y)+') · '+(inside?'inside':'outside')+' FOV\nBearing right '+fixed(value.bearing)+'° · elevation up '+fixed(value.elevation)+'°');
+      if(inside) frame.append(svg('circle',{cx:left+scale*value.x,cy:top+scale*value.y,r:8,fill:legends[1]}));
+      readout(focus+'\nImage position ('+fixed(value.x)+', '+fixed(value.y)+') px · '+(inside?'inside':'outside')+' FOV\nBearing '+fixed(value.bearing)+'° (positive right) · elevation '+fixed(value.elevation)+'° (positive up)');
       break;
     }
     case 'pid': {
