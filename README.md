@@ -4,7 +4,7 @@ Computer vision education by FTC Team 21229 Quality Control, Washington State. [
 
 - 12 curriculum modules and 48 lessons, from camera geometry through autonomous integration.
 - 18 project guides with FTC SDK 12.0 Java examples, 30 Java recipes, 21 troubleshooting articles, and 7 interactive labs.
-- BIOBUZZ practice applications, role-specific learning paths, and an optional team trial report.
+- BIOBUZZ practice applications and cluster telemetry, role-specific learning paths, and an optional team trial report.
 
 ## Run locally
 

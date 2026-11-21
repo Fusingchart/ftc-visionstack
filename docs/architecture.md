@@ -9,4 +9,4 @@ The site is a static, dependency-free Node 22 build with JavaScript modules and 
 - `ftc-examples/src` contains SDK 12.0 Java entry points. Limelight examples share a lifecycle and gating implementation. VisionPortal uses an independent example.
 - `pipelines/color_blob.py` provides the firmware-side bench image pipeline used by the SnapScript example.
 
-Project pages read Java source at build time and link the helper files. Project entries can be filtered by keywords in the title or description. Images selected in the HSV lab stay in browser memory.
+Project pages read Java source at build time and link the helper files. Project entries support keyword, difficulty, camera, topic and hardware filters. Images selected in the HSV lab stay in browser memory.
