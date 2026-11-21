@@ -1,5 +1,6 @@
 import { config } from '../site/config.mjs';
 import { modulePages, lessonPages } from './course.mjs';
+import { toolPages } from './labs.mjs';
 import { refs } from './references.mjs';
 
 export const pages = [
@@ -8,7 +9,7 @@ export const pages = [
   { path:'projects', title:'Projects', description:'Bench and robot implementations for practical FTC vision tasks.' },
   { path:'cookbook', title:'Code cookbook', description:'Focused Java examples for typical vision integration tasks.' },
   { path:'troubleshooting', title:'Troubleshooting', description:'Trace vision faults from camera configuration to robot motion.' },
-  { path:'tools', title:'Interactive tools', description:'Experiment with camera geometry, image processing, and controls.' },
+  { path:'tools', title:'Interactive tools', description:'Experiment with camera geometry, image processing, and controls.', sections:[['Labs',[{cards:toolPages.map(p=>p.path)}]]] },
   { path:'season', title:config.season + ' vision', description:'Use current FIRST field references to plan vision experiments.', sections:[['Official season references',[{links:[refs.GAME,refs.ARENA]}]]] },
   { path:'resources', title:'Resources', description:'Primary references for robotics vision and FTC programming.', sections:[['Official documentation',[{links:Object.values(refs)}]]] },
   { path:'about', title:'About', description:config.team + ' builds open-source educational resources for FTC teams.', sections:[['Mission',['Help students understand camera measurements and turn them into reliable robot behaviors. This is an unofficial community project.']],['License',[{links:[['MIT license',config.repository+'/blob/main/LICENSE']]}]]] },
@@ -16,4 +17,4 @@ export const pages = [
   { path:'search', title:'Search', description:'Search lessons, examples, tools, and troubleshooting.' },
 ];
 
-pages.push(...modulePages, ...lessonPages);
+pages.push(...modulePages, ...lessonPages, ...toolPages);
