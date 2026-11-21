@@ -1,0 +1,20 @@
+name: Documentation or implementation issue
+description: Report a reproducible problem in the site, code, or instructions
+body:
+  - type: input
+    id: resource
+    attributes:
+      label: Website URL or OpMode
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps, expected behavior, and observed behavior
+      description: Include exact SDK and firmware versions if relevant. Remove identifying student details.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Vendor reference or redacted test evidence
