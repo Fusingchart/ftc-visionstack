@@ -1,3 +1,5 @@
+import { recipePages } from './cookbook.mjs';
+import { issuePages } from './troubleshooting.mjs';
 import { refs } from './references.mjs';
 
 const modules = [
@@ -79,9 +81,14 @@ export const modulePages = modules.map(([title, project], i) => ({
   path:'course/module-' + (i+1), title, description:project,
   sections:[['Core lessons',[{cards:modules[i][2].map((_,j)=>'course/lesson-' + (i+1) + '-' + (j+1))}]]],
 }));
+const labs = { '1-2':'camera', '1-4':'camera', '4-3':'frames', '5-1':'hsv', '5-2':'hsv', '6-1':'pid', '6-2':'pid', '7-1':'frames', '7-4':'fusion', '8-3':'localization', '9-3':'latency', '9-4':'latency' };
 const paths = modules.flatMap((module,i)=>module[2].map((_,j)=>'course/lesson-' + (i+1) + '-' + (j+1)));
 export const lessonPages = modules.flatMap(([module, project, lessons],i)=>lessons.map(([title, sources, objective, concept, example, exercise, assessment],j)=>{
   const index = i*4+j;
+  const path = paths[index];
+  const recipes = recipePages.filter(recipe=>recipe.sections.at(-1)[1][0].cards.includes(path));
+  const issues = issuePages.filter(issue=>issue.sections.at(-1)[1][1].cards.includes(path));
+  const tool = labs[(i+1)+'-'+(j+1)];
   const difficulty = i<3 ? 'Beginner' : i<7 ? 'Intermediate' : 'Advanced';
   return {
     path:paths[index],title,description:objective + '.',meta:difficulty + ' · ' + (i<3?25:i<7?35:45) + ' minutes',
@@ -91,6 +98,9 @@ export const lessonPages = modules.flatMap(([module, project, lessons],i)=>lesso
       ['Prerequisites',[index ? 'The linked lesson gives the immediate background. Read it if its main measurement or technique is unfamiliar.' : 'Basic arithmetic and familiarity with the FTC Robot Controller and Driver Station.',...(index ? [{cards:[paths[index-1]]}] : [])]],
       ['How it works',[concept]],
       ['Worked example',[example]],
+      ...(recipes.length ? [['Java application',[recipes[0].description,recipes[0].sections[1][1][0],{cards:recipes.map(page=>page.path)}]]] : []),
+      ...(issues.length ? [['Common mistakes',[{cards:issues.map(page=>page.path)}]]] : []),
+      ...(tool ? [['Interactive lab',[{cards:['tools/'+tool]}]]] : []),
       ['Robot lab',[exercise, 'Module project. ' + project]],
       ['Check your understanding',[assessment]],
       ['References',[{links:sources.split(' ').map(key=>refs[key])}]],
