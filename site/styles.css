@@ -34,3 +34,10 @@ header{background:var(--paper);border-bottom:1px solid var(--line)}.header-inner
   .hero { grid-template-columns: minmax(0, 1fr); }
   .hero .course-figure { max-width: 37rem; }
 }
+
+/* Java-qualified names and translated captions must wrap on small displays. */
+main p, main li, .lesson-table th, .lesson-table td {
+  overflow-wrap: anywhere;
+}
+.controls label { min-width: 0; }
+.controls input[type=file] { width: 100%; min-width: 0; }
