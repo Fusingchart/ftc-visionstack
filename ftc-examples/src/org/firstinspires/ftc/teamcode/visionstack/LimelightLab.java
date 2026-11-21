@@ -33,7 +33,10 @@ public abstract class LimelightLab extends LinearOpMode {
     private int requested, armedFrames, count;
     private double previousStamp = Double.NaN, previousAngle, holdStarted = Double.NaN;
     private double bias, squaredError, rangeSquaredError, xEstimate = Double.NaN;
-    private int previousEncoder;
+    private int previousEncoder, turretHome;
+    // Set to a conservative fraction of known travel and begin each run at center.
+    private static final int TURRET_LIMIT_TICKS = 100;
+    private boolean enableLocked;
     private long nextTelemetry;
     private DcMotor fl, fr, bl, br, turret, encoder, intake;
     private DistanceSensor stopRange;
@@ -57,6 +60,12 @@ public abstract class LimelightLab extends LinearOpMode {
             boolean switched = commandPipeline(requested);
             boolean down = false;
             while (opModeIsActive()) {
+                if (!gamepad1.right_bumper) {
+                    holdStarted = Double.NaN;
+                    enableLocked = false;
+                    pid.reset();
+                    armedFrames = 0;
+                }
                 boolean pressed = gamepad1.a;
                 if (pressed && !down && (mode() == Mode.SWITCH || mode() == Mode.COMPARE)) {
                     int next = mode() == Mode.COMPARE ? (requested == 1 ? 2 : 1) : 1 - requested;
@@ -91,6 +100,7 @@ public abstract class LimelightLab extends LinearOpMode {
     private boolean commandPipeline(int index) {
         requested = index;
         previousStamp = Double.NaN;
+        lastFrameNs = 0;
         armedFrames = 0;
         pid.reset();
         return camera.pipelineSwitch(index);
@@ -104,7 +114,10 @@ public abstract class LimelightLab extends LinearOpMode {
             bl = motor("backLeft", true);
             br = motor("backRight", false);
         }
-        if (m == Mode.TURRET) turret = motor("turret", false);
+        if (m == Mode.TURRET) {
+            turret = motor("turret", false);
+            turretHome = turret.getCurrentPosition();
+        }
         if (m == Mode.ACQUIRE) {
             intake = motor("intake", false);
             stopRange = hardwareMap.get(DistanceSensor.class, "stopRange");
@@ -253,7 +266,15 @@ public abstract class LimelightLab extends LinearOpMode {
         if (!Double.isFinite(tx) || !enabled(now)) { stopMotion(); return; }
         if (newFrame) armedFrames = Math.min(2,armedFrames+1);
         if (armedFrames < 2) { stopMotion(); return; }
-        if (mode() == Mode.TURRET) turret.setPower(pid.update(tx, dt, newFrame));
+        if (mode() == Mode.TURRET) {
+            double command = pid.update(tx, dt, newFrame);
+            int travel = turret.getCurrentPosition() - turretHome;
+            if ((travel >= TURRET_LIMIT_TICKS && command > 0) || (travel <= -TURRET_LIMIT_TICKS && command < 0)) {
+                command = 0;
+                pid.reset();
+            }
+            turret.setPower(command);
+        }
         if (mode() == Mode.ROTATE) drive(0,0,Vision.effort(tx,0.021,0.23,1.5));
         if (mode() == Mode.STRAFE) drive(0,Vision.effort(tx,0.019,0.20,2),0);
         if (mode() == Mode.APPROACH && Double.isFinite(range)) {
@@ -275,14 +296,19 @@ public abstract class LimelightLab extends LinearOpMode {
     }
 
     private boolean enabled(double now) {
-        if (!gamepad1.right_bumper || Math.abs(gamepad1.left_stick_y) > 0.15 || Math.abs(gamepad1.right_stick_x) > 0.15) {
-            holdStarted = Double.NaN;
+        if (!gamepad1.right_bumper || enableLocked) return false;
+        if (Math.abs(gamepad1.left_stick_y) > 0.15 || Math.abs(gamepad1.right_stick_x) > 0.15) {
+            enableLocked = true;
             pid.reset();
             armedFrames = 0;
             return false;
         }
         if (Double.isNaN(holdStarted)) holdStarted = now;
-        return now - holdStarted < 2;
+        if (now - holdStarted < 2) return true;
+        enableLocked = true;
+        pid.reset();
+        armedFrames = 0;
+        return false;
     }
 
     // Positive yaw turns the chassis right. Positive lateral command strafes right.
