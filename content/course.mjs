@@ -1,9 +1,9 @@
+import { fieldLessons } from './field-lessons.mjs';
 import { robotLessons } from './robot-lessons.mjs';
 import { benchLessons } from './bench-lessons.mjs';
 import { fundamentals } from './fundamentals.mjs';
 import { recipePages } from './cookbook.mjs';
 import { issuePages } from './troubleshooting.mjs';
-import { practiceNotes } from './lesson-notes.mjs';
 import { refs } from './references.mjs';
 
 const moduleProjects = ['distance-bearing','pipeline-switch','telemetry','tag-benchmark','color','rotate','odometry','tag-approach','moving-target','snapscript','webcam-comparison','webcam-comparison'];
@@ -88,20 +88,21 @@ export const modulePages = modules.map(([title, project], i) => ({
 }));
 const labs = { '1-2':'camera', '1-4':'camera', '4-3':'frames', '5-1':'hsv', '5-2':'hsv', '6-1':'pid', '6-2':'pid', '7-1':'frames', '7-4':'fusion', '8-3':'localization', '9-3':'latency', '9-4':'latency' };
 const paths = modules.flatMap((module,i)=>module[2].map((_,j)=>'course/lesson-' + (i+1) + '-' + (j+1)));
-export const lessonPages = modules.flatMap(([module, project, lessons],i)=>lessons.map(([title, sources, objective, concept, example, exercise, assessment],j)=>{
+export const lessonPages = modules.flatMap(([,,lessons],i)=>lessons.map(([title, sources, objective,, example, exercise, assessment],j)=>{
   const index = i*4+j;
   const path = paths[index];
   const recipes = recipePages.filter(recipe=>recipe.sections.at(-1)[1][0].cards.includes(path));
   const issues = issuePages.filter(issue=>issue.sections.at(-1)[1][1].cards.includes(path));
   const lessonNumber = (i+1)+'-'+(j+1);
   const tool = labs[lessonNumber];
-  const deepDive = benchLessons[lessonNumber] ?? robotLessons[lessonNumber];
+  const deepDive = benchLessons[lessonNumber] ?? robotLessons[lessonNumber] ?? fieldLessons[lessonNumber];
+  if (i !== 0 && !deepDive) throw new Error('Missing lesson explanation for ' + lessonNumber);
   const difficulty = i<3 ? 'Beginner' : i<7 ? 'Intermediate' : 'Advanced';
   return {
     path:paths[index],title,description:objective + '.',meta:difficulty + ' · ' + (i<3?25:i<7?35:45) + ' minutes',
     siblings:[paths[index-1], paths[index+1]],
     sections:i === 0 ? [...fundamentals[j], ['References',[{links:sources.split(' ').map(key=>refs[key])}]]] : [
-      ...(deepDive ? [deepDive] : [['How it works',[concept,practiceNotes[i][j]]]]),
+      deepDive,
       ['Worked example',[example]],
       ...(recipes.length ? [['Java application',[recipes[0].description,recipes[0].sections[1][1][0],{cards:recipes.map(page=>page.path)}]]] : []),
       ...(issues.length ? [['Common mistakes',[{cards:issues.map(page=>page.path)}]]] : []),
