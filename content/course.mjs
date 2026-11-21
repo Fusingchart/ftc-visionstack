@@ -1,3 +1,4 @@
+import { benchLessons } from './bench-lessons.mjs';
 import { fundamentals } from './fundamentals.mjs';
 import { recipePages } from './cookbook.mjs';
 import { issuePages } from './troubleshooting.mjs';
@@ -91,21 +92,22 @@ export const lessonPages = modules.flatMap(([module, project, lessons],i)=>lesso
   const path = paths[index];
   const recipes = recipePages.filter(recipe=>recipe.sections.at(-1)[1][0].cards.includes(path));
   const issues = issuePages.filter(issue=>issue.sections.at(-1)[1][1].cards.includes(path));
-  const tool = labs[(i+1)+'-'+(j+1)];
+  const lessonNumber = (i+1)+'-'+(j+1);
+  const tool = labs[lessonNumber];
+  const bench = benchLessons[lessonNumber];
   const difficulty = i<3 ? 'Beginner' : i<7 ? 'Intermediate' : 'Advanced';
   return {
     path:paths[index],title,description:objective + '.',meta:difficulty + ' · ' + (i<3?25:i<7?35:45) + ' minutes',
     siblings:[paths[index-1], paths[index+1]],
     sections:i === 0 ? [...fundamentals[j], ['References',[{links:sources.split(' ').map(key=>refs[key])}]]] : [
-      ['Learning objective',[objective + '.',{cards:[modulePages[i].path]}]],
-      ['Prerequisites',[index ? 'The linked lesson gives the immediate background. Read it if its main measurement or technique is unfamiliar.' : 'Basic arithmetic and familiarity with the FTC Robot Controller and Driver Station.',...(index ? [{cards:[paths[index-1]]}] : [])]],
-      ['How it works',[concept,practiceNotes[i][j]]],
+      ...(bench ? [bench] : [['How it works',[concept,practiceNotes[i][j]]]]),
       ['Worked example',[example]],
       ...(recipes.length ? [['Java application',[recipes[0].description,recipes[0].sections[1][1][0],{cards:recipes.map(page=>page.path)}]]] : []),
       ...(issues.length ? [['Common mistakes',[{cards:issues.map(page=>page.path)}]]] : []),
       ...(tool ? [['Interactive lab',[{cards:['tools/'+tool]}]]] : []),
       ['Robot lab',[exercise,{cards:['projects/'+moduleProjects[i]]}]],
       ['Check your understanding',[assessment]],
+      ['In this module',[{cards:[modulePages[i].path]}]],
       ['References',[{links:sources.split(' ').map(key=>refs[key])}]],
     ],
   };

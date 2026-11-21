@@ -1,0 +1,63 @@
+// Bench notes pair an observed symptom with a procedure the reader can reproduce.
+export const benchLessons = {
+  '2-1': ['Bring up the camera before tuning it',[
+    'Commission the camera while the robot is on the cart. Power down to make the USB connection, check that the cable carries data, and make sure you can reach the connector without removing the camera bracket. Once powered, check that the camera is visible to the hub and save the configuration with the name your OpMode expects. Run a telemetry-only OpMode before adding the camera to autonomous.',
+    'If the configuration tool shows a device but your OpMode fails at hardwareMap, read the configured name character for character and confirm which configuration is active. If the camera vanishes from the configuration tool when the arm moves, inspect cable travel at full extension. A failure tied to arm position is a good reason to reproduce the motion with the camera preview open.',
+    'Measure the mount from a chassis reference you can find again. Mark the forward direction and note whether its orientation is level or tilted. If a replacement bracket moves the lens upward by 30 mm, record the new height even when the dashboard still gives you the same centered angle. The old height remains in your range calculation until you change it.',
+  ]],
+  '2-2': ['Read the preview one stage at a time',[
+    'Put a known target and a realistic distractor in the same scene. Start with the raw image. If the white part of the target is saturated or the dark border blends into the mat, investigate exposure and lighting. Once the image looks usable, inspect the mask or detection overlay and then the result numbers. Each view tells you which stage changed.',
+    'For a color pipeline, a mask that cleanly highlights the target while the final overlay shows nothing points toward a later filter, such as minimum area. A mask that covers the target and the wall points toward thresholding or lighting. Keep an image of each failure and save the slot after you can explain what improved.',
+    'Before a firmware update or camera swap, save a working configuration and write down the slot numbers the robot requests. Restore to a bench unit when possible. Present the same positive and negative targets after restoring so you catch a slot mismatch even when both saved pipelines load successfully.',
+  ]],
+  '2-3': ['Make a crop that survives a turn',[
+    'Set exposure using a distant target that still needs to be usable. For an AprilTag pipeline, verify the family and look for clear corners at the far edge of the intended approach. For a color pipeline, inspect which pixels pass the mask before tuning blob size. For a neural pipeline, start with the vendor-compatible model and label order before changing the confidence threshold.',
+    'Suppose the target center sweeps from x = 95 to x = 510 in a 640 px image and the nearest target is 70 px wide. A center-only crop from x = 160 to 480 misses ordinary poses. Allow about 35 px beyond both observed extremes to retain the whole object, then replay a quick turn to find out whether those extremes were representative.',
+    'Measure the result age and accepted detections before and after the crop using the same scene sequence. Processing fewer pixels is helpful only if the observations the robot needs still arrive. A boundary test should include direction changes and a partial target that the robot ought to reject.',
+  ]],
+  '2-4': ['Reproduce the symptom with the fewest moving parts',[
+    'Start with the robot stopped, one known tag and one declared pipeline slot. Record the last point where the data looks right: hub configuration, camera preview, pipeline output, SDK result, or robot decision. If the preview is live while the SDK age grows, keep optical settings fixed and inspect delivery and polling. If the SDK result is fresh and invalid, work backward from the pipeline and the image.',
+    'To separate a pipeline mismatch from a detection fault, show each slot a target it handles and display both the requested slot and the slot stamped on the result. A color result stamped with the previous slot is useful diagnostic evidence after a switch. It should never update the new tag controller.',
+    'Try three deliberate faults and restore one at a time: cover the lens, select the wrong slot, and run with the wrong configured name. Write down the first symptom for each. Then give the log to another teammate and see whether they can identify the injected fault.',
+  ]],
+  '3-1': ['Own polling for one OpMode run',[
+    'Map the camera once during setup using the exact active configuration name. A telemetry-only OpMode is a sensible first integration because you can tell whether hardware mapping, polling and the visible result all work without inspecting drivetrain behavior. Put the polling lifetime inside a try/finally block so an early exit and normal stop use the same cleanup.',
+    'A polling rate of 50 Hz asks for readings at intervals of about 20 ms. If the pipeline publishes at 20 Hz, the robot can read the same observation on consecutive polls. Keep the loop responsive when getLatestResult is initially null and when the camera returns a valid observation too slowly for the current task.',
+    'Test the lifecycle by stopping immediately after Play, then restarting and observing both a visible and an occluded target. The first test checks cleanup under a short run. The second tells you whether the reader handles both a successful result and an empty scene without waiting for a target before checking Stop.',
+  ]],
+  '3-2': ['Separate no data, no target and zero angle',[
+    'Read getLatestResult once per loop and keep that reference for the rest of the decision. If you call it separately for validity and angle, the camera can publish between calls. A result might be absent right after startup, invalid when the scene is empty, or valid and centered at 0°. Your telemetry should give each of those states its own label.',
+    'Check the expected pipeline and age before consuming tx, ty or ta. Imagine the last target was 8° right, the latest appearance is now 130 ms old, and your limit is 100 ms. The reported angle is still useful for diagnosing what happened, but this loop should request zero turn and explain that the age check failed.',
+    'Capture and targeting durations explain portions of the timing path. Result age at use tells you when to stop acting on the available result. To estimate capture-to-command delay, establish what each vendor field measures and check for overlapping durations before adding anything together.',
+  ]],
+  '3-3': ['Carry the identity with the angle',[
+    'Put two tags in view and let the wrong one be larger. If the robot aims at the tag with the largest area before filtering by task ID, it will confidently move toward the wrong place. Read the fiducial record for the selected ID and keep the selected ID, target angle and timestamp together in the state you pass to the controller.',
+    'Pose field names describe direction. A tag pose in the camera frame places the tag using camera axes. A camera pose in the tag frame answers the inverse question. Inversion rotates the negative translation into the new frame. Negating x and y alone fails if the frames also differ in yaw.',
+    'A useful bench check is to keep the robot stationary and move one target right, then forward. Log which axis changes and in what units. Repeat after a pipeline switch to verify every accepted angle and pose carries the intended slot.',
+  ]],
+  '3-4': ['Test the decision without a camera connected',[
+    'Give the camera adapter one job: convert a vendor result into the small observation the rest of the program expects. For an alignment assist that can be target ID, bearing in degrees, acquisition identity and validity or age. Keep drivetrain decisions out of the adapter so a second camera implementation can supply the same observation contract.',
+    'Write a replay trace that starts with a fresh positive bearing, repeats its frame, crosses the stale threshold, and then receives an observation for a different ID. The first two loop ticks may use the same bounded effort. Only one should count toward settling. The last two should return zero and clear any controller state that would carry across targets.',
+    'Send status to telemetry on a slower schedule than the control loop. Keep the counters you need to diagnose dropped and rejected observations. If enabling a debug display changes drive behavior, measure the loop duration with and without the display before tuning the controller again.',
+  ]],
+  '4-1': ['A readable tag can still give a poor pose',[
+    'The detector locates a candidate quadrilateral and decodes its bit pattern. Think of the ID and corners as separate evidence. Successful decoding tells you which pattern it saw. Pose estimation must still reconcile the corner locations with the known tag size and camera calibration. At a steep angle the image is skinny and small pixel errors can move the inferred depth noticeably.',
+    'For a frontal tag in a simple pinhole model, width in pixels is approximately focal length times physical side length divided by distance. A 100 mm marker that is accidentally configured as 110 mm therefore yields a depth about 10% high at the same measured pixel width. Measure the side using the detector’s documented convention instead of measuring the outside of the paper.',
+    'Put the same tag at two headings and hold the distance fixed. Log the decoded ID, estimated range and heading, and inspect corner placement. If identity is stable while pose wanders, look at calibration, size and geometry before tuning the ID filter.',
+  ]],
+  '4-2': ['Find the usable envelope on a grid',[
+    'Pick a tag family and size that match the target. Start frontal at close range and verify a crisp detection. Then move through several ranges and headings, keeping the tag within view. The important cells are often the far, oblique ones where few pixels remain per edge and the image may also be blurred.',
+    'With a 400 px focal length and an 80 mm tag facing the camera, its ideal width is about 32 px at 1 m and 16 px at 2 m. These are geometry estimates. A reliable range limit also depends on exposure, focus, image size and software settings. Measure detection fraction and pose error in each cell and keep the raw counts.',
+    'Repeat the weakest cell with the robot turning. If a shorter exposure brings back sharp corners and raises the usable detection count, check whether the output survives a dimmer scene before saving that setting. Use a crop only after confirming it leaves enough margin for all needed targets.',
+  ]],
+  '4-3': ['Move the origin from the lens to the chassis',[
+    'Use a planar teaching frame with x forward, y left and positive yaw counterclockwise. If the camera is pointed forward and sits 0.10 m ahead of the chassis origin, a tag 1.0 m in front of the lens is 1.10 m from the chassis origin. With a yawed mount, rotate the observation before adding the mount offset.',
+    'For example, a camera sits at (0.10, 0.05) m in robot coordinates and points 90° left. A tag along its forward axis at (1.0, 0.0) m becomes (0.0, 1.0) m after rotation and (0.10, 1.05) m after translation. A code path that skips the rotation would place that tag straight ahead.',
+    'Compare two mounts that can see the same static tag and use the documented SDK axes to normalize both before computing relative pose. An upright VisionPortal camera reports right and forward as FTC x and y. Match those axes at the boundary before using the teaching frame above.',
+  ]],
+  '4-4': ['Build a filter you can explain from a log',[
+    'Start with identity and expected slot, then check whether the observation is fresh and physically plausible. Record the first reason a sample failed. A record that says only “ignored” is hard to distinguish from a missing camera. Plausibility can include an expected range, directional bounds, enough visible image detail, and agreement with recent robot motion.',
+    'When several observations disagree, compare them in the same frame and at nearly the same time. Two tags from the same exposure share camera calibration and mount error. Treating two agreeing estimates as proof of accuracy can hide a consistent mounting offset. Check against a fixed marked pose to expose that bias.',
+    'Cover and reveal the marker while observing the age and command logs. Holding the last pose on a chart can make the trace easier to read. Make that retained point visually distinguishable and ensure it cannot keep an actuator command alive beyond your freshness cut.',
+  ]],
+};
