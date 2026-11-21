@@ -1,0 +1,12 @@
+{
+  "name": "ftc-visionstack",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "npm run build && node --test",
+    "lint": "find site content scripts tests -name '*.mjs' -exec node --check {} \\;",
+    "dev": "npm run build && python3 -m http.server 4173 --bind 127.0.0.1 --directory dist"
+  }
+}
