@@ -62,3 +62,19 @@ test('control walkthrough links the worked calculation, Java update, and simulat
   assert.match(html, /pid\.update\(tx, dt, newFrame\)/);
   assert.match(html, /href="\.\.\/\.\.\/tools\/pid\/"/);
 });
+
+test('all ten course illustrations appear with alt text and lesson captions', async () => {
+  const routes = ['', 'course/lesson-1-1', 'course/lesson-1-4', 'course/lesson-4-1', 'course/lesson-5-1', 'course/lesson-6-2', 'course/lesson-7-1', 'course/lesson-7-4', 'course/lesson-9-3'];
+  const assets = new Set();
+  for (const route of routes) {
+    const html = await readFile(join('dist', route, 'index.html'), 'utf8');
+    const figures = [...html.matchAll(/<figure class="course-figure"><img src="[^"]+\/figures\/([^"]+)"[^>]+alt="([^"]+)"[^>]*>(.*?)<\/figure>/g)];
+    assert.ok(figures.length, route);
+    for (const [, asset, alt, caption] of figures) {
+      assets.add(asset);
+      assert.ok(alt.length > 40, asset);
+      if (route) assert.match(caption, /<figcaption>.+<\/figcaption>/);
+    }
+  }
+  assert.equal(assets.size, 10);
+});
