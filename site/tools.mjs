@@ -127,7 +127,7 @@ function sample(scene=0) {
   const canvas=create('canvas',{width:320,height:200});
   const ctx=canvas.getContext('2d');
   ctx.fillStyle=scene?'#b8a185':'#284049';ctx.fillRect(0,0,320,200);
-  [[78,69,30,'#ec3628'],[191,128,34,'#bb3a29'],[250,54,26,'#eda626'],[61,155,19,'#7a291c'],[149,41,15,'#2ba38e']].forEach(([x,y,r,c])=>{
+  [[78,69,30,'#ec3628'],[191,128,34,'#bb3a29'],[250,54,26,'#eda626'],[61,155,19,'#7a291c'],[149,41,15,'#2ba38e'],[278,150,6,'#d23b2c']].forEach(([x,y,r,c])=>{
     ctx.fillStyle=c;ctx.beginPath();ctx.arc(x,y,r,0,2*Math.PI);ctx.fill();
   });
   return canvas;

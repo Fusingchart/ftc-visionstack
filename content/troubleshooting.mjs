@@ -1,3 +1,5 @@
+import { diagnosticTrials } from './reference-examples.mjs';
+import { relatedFigure } from './course-guides.mjs';
 import { refs } from './references.mjs';
 const issues=[
 ['Limelight not detected','Configuration cannot scan or map limelight','USB data connection, missing device entry, or incompatible version','Open the dashboard and test a known data cable, then scan the Control Hub configuration. Confirm active robot configuration.','Secure a supported USB connection and add the exact name used in hardwareMap.','2-1'],
@@ -22,7 +24,10 @@ const issues=[
 ['Different behavior under competition lighting','Bench performance drops at venue','Reflective field surroundings and changes in exposure or illumination','Run a repeatable sample grid with field objects and realistic backgrounds.','Retune using held-out lighting conditions and check fallbacks before competition.','11-2'],
 ['Software version incompatibility','Compile errors or missing expected result types','SDK, Robot Controller, Driver Station, firmware or pipeline export version mismatch','Record exact version numbers and compare public API signatures or release notes.','Update paired components according to vendor instructions and validate on a separate bench configuration.','11-4'],
 ];
-export const issuePages=issues.map(([title,symptom,cause,diagnose,fix,lesson],index)=>({
+export const issuePages=issues.map(([title,symptom,cause,diagnose,fix,lesson],index)=>{
+  const [label, example] = diagnosticTrials[index];
+  return {
   path:'troubleshooting/issue-'+(index+1),title,description:symptom+'.',
-  sections:[['Symptoms',[symptom+'.']],['Likely causes',[cause+'.']],['Diagnostic procedure',[diagnose]],['Fix',[fix]],['Prevention and related lesson',['Record the configuration that passed the diagnostic. Repeat this test after changing optics, wiring, firmware or pipeline settings that affect the symptom.',{cards:['course/lesson-'+lesson]},{links:[refs.LL,refs.SDK]}]]],
-}));
+  sections:[['Symptoms',[symptom+'.']],['Likely causes',[cause+'.']],['Diagnostic procedure',[diagnose]],['Worked diagnostic',[label+'.',example,relatedFigure(lesson)]],['Fix',[fix]],['Prevention and related lesson',['Record the configuration that passed the diagnostic. Repeat this test after changing optics, wiring, firmware or pipeline settings that affect the symptom.',{cards:['course/lesson-'+lesson]},{links:[refs.LL,refs.SDK]}]]],
+  };
+});

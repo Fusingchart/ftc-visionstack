@@ -1,3 +1,5 @@
+import { recipeTrials } from './reference-examples.mjs';
+import { relatedFigure } from './course-guides.mjs';
 import { refs } from './references.mjs';
 const recipes=[
 ['Initialize Limelight','3-1','Limelight3A camera = hardwareMap.get(Limelight3A.class, "limelight");','Import the com.qualcomm.hardware.limelightvision class. Configure the same device name on the Control Hub.','A configured device name mismatch causes hardware mapping to fail.'],
@@ -31,7 +33,10 @@ const recipes=[
 ['Log detection performance','11-1','android.util.Log.i("VisionBench", String.format(java.util.Locale.US,\n    "id=%d,ageMs=%d,biasDeg=%.3f", id, r.getStaleness(), observedDeg - truthDeg));','Log once per distinct result and include invalid trials in a separate row or denominator.','Per-loop logging biases samples toward slower result periods.'],
 ['Measure camera and control latency','11-3','long loopStartedNs = System.nanoTime();\nLLResult r = camera.getLatestResult();\nlong readNs = System.nanoTime();\nif (r != null) telemetry.addData("age ms / read ms", "%d / %.3f", r.getStaleness(), (readNs-loopStartedNs)/1e6);','Use monotonic hub time for local timing. Use an external synchronized stimulus for end-to-end measurement.','Loop read time excludes image acquisition and actuator response.'],
 ];
-export const recipePages=recipes.map(([title,lesson,code,setup,pitfall],index)=>({
+export const recipePages=recipes.map(([title,lesson,code,setup,pitfall],index)=>{
+  const [label, input, expected] = recipeTrials[index];
+  return {
   path:'cookbook/recipe-'+(index+1),title,description:setup,
-  sections:[['Setup and purpose',[setup]],['Java',[{code}]],['Failure cases',[pitfall]],['Read more',[{cards:['course/lesson-'+lesson]},{links:[refs.LL,refs.SDK]}]]],
-}));
+  sections:[['Setup and purpose',[setup]],['Java',[{code}]],['Worked example',[{table:{caption:label,headers:['Try','Expected result'],rows:[[input,expected]]}},relatedFigure(lesson)]],['Failure cases',[pitfall]],['Read more',[{cards:['course/lesson-'+lesson]},{links:[refs.LL,refs.SDK]}]]],
+  };
+});

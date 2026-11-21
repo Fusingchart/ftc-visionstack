@@ -39,6 +39,11 @@ export function courseFigure(moduleIndex, lessonIndex) {
   return visuals[assignments[moduleIndex][lessonIndex]];
 }
 
+export function relatedFigure(lesson) {
+  const [module, position] = lesson.split('-').map(Number);
+  return courseFigure(module - 1, position - 1);
+}
+
 const modules = [
   ['Separate the jobs in the pipeline','Begin with a target you can move and measure. Follow one image from capture to a robot decision. By the end, predict a bearing from a pixel offset and describe what extra information a range estimate needs.','Measure a fixed target twice at different depths. Verify that the same image location can come from two different positions if the two rays point in the same direction.','tools/camera','image'],
   ['Bring up a camera one stage at a time','Start with hub configuration, then confirm live capture, then verify the requested pipeline and a known target. Save a working configuration before changing exposure or crop.','Use a valid target, a covered lens and the wrong slot. Your log should make each of those cases distinguishable without plugging in the drivetrain.','projects/pipeline-switch','capture'],

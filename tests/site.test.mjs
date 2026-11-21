@@ -107,3 +107,11 @@ test('all seven simulators have an inline exercise and documented worked example
     assert.match(html, /<figure class="course-figure">/, path);
   }
 });
+
+test('cookbook recipes and troubleshooting pages have illustrative tests', async () => {
+  for (const {path} of pages.filter(({path}) => /^(cookbook\/recipe|troubleshooting\/issue)-/.test(path))) {
+    const html = await readFile(join('dist',path,'index.html'), 'utf8');
+    assert.match(html, /id="worked-(example|diagnostic)"/, path);
+    assert.match(html, /<figure class="course-figure">/, path);
+  }
+});
