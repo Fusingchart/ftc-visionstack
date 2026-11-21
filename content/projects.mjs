@@ -14,7 +14,7 @@ const entries=[
 ['turret','PID turret aiming','TurretPid','Advanced','Limelight 3A and bounded test turret with independent travel limits','AprilTag slot 0; camera rotates with turret','6-2','Use frame-aware PID to track a tag on a turret bench fixture.','Confirm independent travel limits and unpowered motion before testing. Set TURRET_LIMIT_TICKS from measured travel, verify encoder polarity and start at the marked center. Use small target steps.','From ±10°, target a true final error under 2° and peak overshoot under 5°. A covered lens commands zero.','Log derivative noise and add encoder-based software limits before widening the motion envelope.'],
 ['field-pose','Robot field-pose estimation','FieldPose','Intermediate','Limelight 3A and surveyed static practice tags','AprilTag slot 0; upload a bench field map and set camera extrinsics','7-3','Read MegaTag field position in meters and yaw in degrees.','Survey three bench positions and compare field pose against your tape marks. Use fixed reference tags.','At rest with valid map, target less than 0.15 m position error and 5° yaw error at each point.','Repeat at greater obliquity and compare single- and multiple-tag configurations.'],
 ['tag-benchmark','AprilTag accuracy benchmarking','TagBenchmark','Intermediate','Limelight 3A, measured rig and fixed tag','AprilTag slot 0','11-1','Estimate signed bearing bias and range and bearing RMSE.','Set both ground truth constants, then collect 30 accepted frames per fixture cell. Record missed intervals separately.','Produce count, bias and RMSE in all six cells of a 3 × 2 distance and angle grid.','Add distinct-frame denominator and calculate recall.'],
-['tag-approach','Drive to an AprilTag-relative standoff','TagApproach','Advanced','Limelight 3A and four-motor drivetrain','AprilTag slot 0; set measured target height and camera pitch','8-1','Reach a bearing and range standoff with a bounded bench controller.','Start well clear of people and obstacles. Verify rotation before enabling forward motion. Use a physical target at known height.','Reach 0.75 m ±0.10 m and bearing below 4° in 8 of 10 short-range trials.','Add tag-heading and lateral pose control for full planar alignment.'],
+['tag-approach','Drive to an AprilTag-relative pose','TagApproach','Advanced','Limelight 3A and four-motor drivetrain','AprilTag slot 0; set measured target height and camera pitch','8-1','Reach a bearing and range standoff with a bounded bench controller.','Start well clear of people and obstacles. Verify rotation before enabling forward motion. Use a physical target at known height.','Reach 0.75 m ±0.10 m and bearing below 4° in 8 of 10 short-range trials.','On a mecanum chassis, try TagRelativePose with a centered Webcam 1 and the official SDK practice tag 583. It applies camera-relative lateral, forward and heading correction. Verify axis signs on blocks and aim for position within 0.05 m and yaw within 4° for three fresh frames.'],
 ['odometry','Vision-corrected odometry','VisionOdometry','Advanced','Limelight 3A, forward encoder on a configured motor port','AprilTag slot 0 with surveyed static field map','7-4','Correct encoder distance with periodic field x measurements on a straight test lane.','Calibrate meters per tick and wheel polarity. Compare ground truth, encoder-only and filtered readings at marked positions.','On a 2 m lane, compare final error over five trials and reject an intentionally introduced 0.5 m innovation.','Maintain a capture-time pose history and extend the state to two dimensions and heading.'],
 ['game-piece','Game-piece detection and acquisition','GamePieceApproach','Advanced','Limelight 3A, mecanum chassis, intake and stop distance sensor','Color slot 1 with a known practice piece','8-4','Center a color candidate, move slowly and use a separate distance sensor for approach termination.','Verify stopRange sees the intended surface. Begin on a clear fixture and test missing, out-of-range and invalid distance cases.','In 10 attempts, record pickup count and achieve zero powered drive commands after stop conditions.','Add a beam-break sensor to confirm possession and an autonomous recovery state.'],
 ['moving-target','Moving-robot target tracking','MotionTracking','Advanced','Limelight 3A, stationary tag and movable fixture','AprilTag slot 0','9-3','Compare raw bearing with a bounded constant-rate extrapolation.','Move laterally while recording telemetry and repeated runs at a fixed speed. Stop and reverse to expose prediction overshoot.','Compute raw and predicted error against synchronized reference observations for at least 20 samples.','Transform measurements using historical robot heading and compare under turns.'],
@@ -25,7 +25,7 @@ const entries=[
 const github=path=>config.repository+'/blob/main/'+path;
 export const projectPages=entries.map(([id,title,clazz,level,hardware,pipeline,lesson,goal,test,pass,extension])=>{
   const isWebcam=clazz==='WebcamBenchmark';
-  const files=isWebcam ? [clazz] : [clazz,'LimelightLab','Vision',...(id==='tag-approach'?['VisionPracticeAuto']:[])];
+  const files=isWebcam ? [clazz] : [clazz,'LimelightLab','Vision',...(id==='tag-approach'?['VisionPracticeAuto','TagRelativePose']:[])];
   const topics = {
     telemetry:'Integration', 'pipeline-switch':'Integration', 'specific-tag':'AprilTags',
     'distance-bearing':'Geometry', color:'Object detection', 'color-neural':'Object detection',
@@ -36,7 +36,7 @@ export const projectPages=entries.map(([id,title,clazz,level,hardware,pipeline,l
   };
   const filters = {
     difficulty:level, topic:topics[id],
-    camera:isWebcam ? ['Limelight 3A','USB webcam'] : ['Limelight 3A'],
+    camera:isWebcam || id==='tag-approach' ? ['Limelight 3A','USB webcam'] : ['Limelight 3A'],
     hardware:hardware.split(',').map(part=>part.trim()).filter(part=>part !== 'Limelight 3A'),
   };
   return {
@@ -49,7 +49,7 @@ export const projectPages=entries.map(([id,title,clazz,level,hardware,pipeline,l
       ['Expected results and acceptance',[pass]],
       ['Debugging',['Check the configured names and selected slot first. Display target validity and age separately. If motion sign is wrong, release enable and verify motor direction and target error sign on blocks before resuming.', 'When measurement error grows with distance, verify intrinsics, target dimensions and extrinsics before adjusting control gains.']],
       ['Extensions',[extension,...(id==='tag-approach'?['VisionPracticeAuto.java is a standalone autonomous practice sequence with acquisition, yaw alignment, approach and fresh-frame standoff verification. The stop state is neutral. Configure the fixture separately and verify motion on blocks before a floor run.']:[])]],
-      ['References',[{links:[refs.SDK,refs.LL,...(isWebcam?[refs.VP,refs.TAG]:[]),...(id==='snapscript'?[refs.SNAP]:[])]}]],
+      ['References',[{links:[refs.SDK,refs.LL,...(isWebcam || id==='tag-approach'?[refs.VP,refs.TAG,refs.AXES]:[]),...(id==='snapscript'?[refs.SNAP]:[])]}]],
     ],
   };
 });
