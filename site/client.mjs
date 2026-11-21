@@ -22,15 +22,20 @@ document.addEventListener('click', async ({ target }) => {
   if (target.closest('a[href^="https://github.com/"]')) event('GitHub clicked');
 });
 const filter = document.querySelector('#filter');
-filter?.addEventListener('input', () => {
+function applyFilters() {
+  const facets = [...document.querySelectorAll('[data-facet]')].filter(select => select.value);
   const terms = filter.value.toLowerCase().trim().split(/\s+/);
   let visible = 0;
   for (const card of document.querySelectorAll('#listing .card')) {
-    card.hidden = !terms.every(term => card.textContent.toLowerCase().includes(term));
+    const values = card.dataset.filters ? JSON.parse(card.dataset.filters) : {};
+    const matchesFacets = facets.every(select => [values[select.dataset.facet]].flat().includes(select.value));
+    card.hidden = !matchesFacets || !terms.every(term => card.textContent.toLowerCase().includes(term));
     visible += Number(!card.hidden);
   }
   document.querySelector('#filter-status').textContent = visible + ' results';
-});
+}
+filter?.addEventListener('input', applyFilters);
+for (const facet of document.querySelectorAll('[data-facet]')) facet.addEventListener('change', applyFilters);
 const results = document.querySelector('#results');
 if (results) {
   const query = new URLSearchParams(location.search).get('q')?.trim() ?? '';

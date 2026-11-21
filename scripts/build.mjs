@@ -15,15 +15,22 @@ function render(page) {
   const cards = paths => '<div class="cards">' + paths.map(path => {
     const item = pageByPath.get(path);
     if (!item) throw new Error('Unknown related page ' + path);
-    return '<article class="card">' + link(path,item.title) + '<p>' + escape(item.description) + '</p></article>';
+    const markers = item.filters ? ' data-filters="' + escape(JSON.stringify(item.filters)) + '"' : '';
+    return '<article class="card"' + markers + '>' + link(path,item.title) + '<p>' + escape(item.description) + '</p></article>';
   }).join('') + '</div>';
-  const sections = (page.sections ?? []).map(([heading, body]) => '<section id="' + anchor(heading) + '"><h2>' + escape(heading) + ' <a class="anchor" aria-label="Link to this section" href="#' + anchor(heading) + '">#</a></h2>' + body.map(paragraph => typeof paragraph === 'string' ? '<p>' + escape(paragraph) + '</p>' : paragraph.code ? '<div class="code"><button data-copy>Copy code</button><pre><code>' + escape(paragraph.code) + '</code></pre></div>' : paragraph.links ? '<ul>' + paragraph.links.map(([label, url]) => '<li><a href="' + escape(url) + '">' + escape(label) + '</a></li>').join('') + '</ul>' : cards(paragraph.cards)).join('') + '</section>').join('');
+  const sections = (page.sections ?? []).map(([heading, body]) => '<section id="' + anchor(heading) + '"><h2>' + escape(heading) + ' <a class="anchor" aria-label="Link to this section" href="#' + anchor(heading) + '">#</a></h2>' + body.map(paragraph => typeof paragraph === 'string' ? '<p>' + escape(paragraph) + '</p>' : paragraph.code ? '<div class="code"><button data-copy>Copy code</button><pre tabindex="0" aria-label="Source code"><code>' + escape(paragraph.code) + '</code></pre></div>' : paragraph.links ? '<ul>' + paragraph.links.map(([label, url]) => '<li><a href="' + escape(url) + '">' + escape(label) + '</a></li>').join('') + '</ul>' : cards(paragraph.cards)).join('') + '</section>').join('');
   const title = page.path ? page.title + ' | ' + config.name : config.name + ' | FTC Computer Vision';
   const canonical = new URL(page.path ? page.path + '/' : '', base).href;
   const parent = page.path.includes('/') ? page.path.split('/')[0] : '';
   const siblings = page.siblings ?? [];
-  const siblingNav = siblings.length ? '<nav class="lesson-nav" aria-label="Lesson sequence">' + siblings.filter(Boolean).map(path => link(path,pageByPath.get(path).title)).join('') + '</nav>' : '';
-  const listing = page.listing ? '<label for="filter">Filter by title, topic or hardware</label><input id="filter" type="search"><div id="listing">' + cards(page.listing) + '</div><p id="filter-status" role="status"></p>' : '';
+  const siblingNav = siblings.length ? '<nav class="lesson-nav" aria-label="Lesson sequence">' + siblings.map((path,index) => path ? link(path,(index ? 'Next · ' : 'Previous · ') + pageByPath.get(path).title) : '').join('') + '</nav>' : '';
+  const facetLabels = {difficulty:'Difficulty',camera:'Camera',topic:'Topic',hardware:'Hardware'};
+  const facets = page.path === 'projects' ? '<div class="controls">' + Object.entries(facetLabels).map(([key,label]) => {
+    const values = [...new Set(page.listing.flatMap(path => pageByPath.get(path).filters[key]))].sort();
+    return '<label>' + label + '<select data-facet="' + key + '"><option value="">All</option>' +
+      values.map(value => '<option>' + escape(value) + '</option>').join('') + '</select></label>';
+  }).join('') + '</div>' : '';
+  const listing = page.listing ? '<label for="filter">Filter by title, topic or hardware</label><input id="filter" type="search">' + facets + '<div id="listing">' + cards(page.listing) + '</div><p id="filter-status" role="status"></p>' : '';
   const toc = (page.sections?.length ?? 0) >= 4 ? '<nav class="toc" aria-label="On this page">' + page.sections.map(([h]) => '<a href="#' + anchor(h) + '">' + escape(h) + '</a>').join('') + '</nav>' : '';
   const analytics = config.analyticsScript ? '<script async src="' + escape(config.analyticsScript) + '"></script><script>window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)};plausible.init=plausible.init||function(o){plausible.o=o||{}};plausible.init()</script>' : '';
   const feedback = page.feedback ? `<form id="feedback" data-issues="${escape(config.repository + '/issues/new')}">
