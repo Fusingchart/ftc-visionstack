@@ -5,5 +5,5 @@ export const config = {
   url: 'https://fusingchart.github.io/ftc-visionstack/',
   sdk: '12.0',
   season: 'BIOBUZZ',
-  analyticsDomain: '',
+  analyticsScript: process.env.PLAUSIBLE_SCRIPT_URL ?? '',
 };

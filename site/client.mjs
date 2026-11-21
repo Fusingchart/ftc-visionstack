@@ -63,3 +63,21 @@ if (results) {
     } catch { status.textContent = 'Search is temporarily unavailable. Browse the documentation sidebar.'; }
   }
 }
+
+const feedback = document.querySelector('#feedback');
+feedback?.addEventListener('submit', submit => {
+  submit.preventDefault();
+  const data = new FormData(feedback);
+  const lines = [
+    ['FTC team', 'team'], ['Region', 'region'], ['Resource', 'resource'],
+    ['Code attempted', 'attempt'], ['Outcome', 'outcome'],
+    ['Public project', 'project'], ['Feedback', 'comments'],
+  ].map(([label, key]) => label + ': ' + (data.get(key)?.trim() || '—'));
+  const body = lines.join('\n');
+  document.querySelector('#feedback-draft').value = body;
+  const issue = document.querySelector('#feedback-issue');
+  const query = new URLSearchParams({title:'FTC VisionStack trial report',body});
+  issue.href = feedback.dataset.issues + '?' + query;
+  issue.hidden = false;
+  event('Trial report prepared');
+});
