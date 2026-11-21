@@ -78,7 +78,7 @@ for theme, palette in PALETTES.items():
     text((809,240),"Target",25,INK,anchor="ma")
     text((183,401),"Robot chassis",25,anchor="ma")
     text((349,296),"Camera centerline",23,BLUE)
-    text((445,189),"Measured bearing",23,MINT)
+    text((455,163),"Measured bearing",23,MINT)
     save("field-view")
 
     start()
@@ -105,7 +105,7 @@ for theme, palette in PALETTES.items():
     dot(origin,MINT,9); dot(target,GOLD,10)
     line([target,(763,310)],LINE,3)
     draw.arc((8,188,252,432),344,360,fill=MINT,width=5)
-    text((280,254),"Bearing θ",28,MINT)
+    text((280,266),"Bearing θ",28,MINT)
     text((771,104),"Target",26,GOLD)
     text((129,345),"Lens center",27)
     text((521,334),"Optical axis",27,MUTED)
