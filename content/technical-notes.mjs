@@ -69,7 +69,7 @@ export const technicalNotes = {
     'Specify the expected result at each tick: one accepted distinct observation, a repeat, a stale rejection, and an ID rejection. The last two ticks should request zero and should not advance a settling counter. If you later change camera libraries, replay the same trace against the controller and test its new adapter separately.',
   ]],
   '5-2': ['Centroid and box center can disagree under occlusion', [
-    'Imagine a segmented object's loose outline still reaches x = 20 and x = 80, but an occluder removes most of the pixels on the right. The box midpoint remains x = 50 as long as one surviving pixel reaches each edge. The centroid moves left because most of the remaining area is on the left. A one-pixel noisy edge can also move a box midpoint disproportionately.',
+    'Imagine a segmented object’s loose outline still reaches x = 20 and x = 80, but an occluder removes most of the pixels on the right. The box midpoint remains x = 50 as long as one surviving pixel reaches each edge. The centroid moves left because most of the remaining area is on the left. A one-pixel noisy edge can also move a box midpoint disproportionately.',
     'Compare the two estimates against the point the intake actually needs to reach. Record errors both with a complete silhouette and with the expected partial view. If neither estimate is stable, use a confidence or shape gate and wait until the robot has a better observation instead of steering harder.',
   ]],
   '5-3': ['A gate buys continuity at the cost of reacquisition', [
