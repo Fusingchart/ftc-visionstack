@@ -1,3 +1,4 @@
+import { technicalNotes } from './technical-notes.mjs';
 import { controlChapter } from './control-chapter.mjs';
 import { fieldLessons } from './field-lessons.mjs';
 import { robotLessons } from './robot-lessons.mjs';
@@ -100,6 +101,7 @@ export const lessonPages = modules.flatMap(([,,lessons],i)=>lessons.map(([title,
   if (i !== 0 && !deepDive) throw new Error('Missing lesson explanation for ' + lessonNumber);
   const difficulty = i<3 ? 'Beginner' : i<7 ? 'Intermediate' : 'Advanced';
   const authored = i === 0 ? fundamentals[j] : controlChapter[lessonNumber];
+  const technicalNote = technicalNotes[lessonNumber];
   return {
     path,title,description:objective + '.',meta:difficulty + ' · Module ' + (i+1),
     lesson:true,
@@ -111,7 +113,7 @@ export const lessonPages = modules.flatMap(([,,lessons],i)=>lessons.map(([title,
       ...(issues.length ? [['Common mistakes',[{cards:issues.map(page=>page.path)}]]] : []),
       ...(tool ? [['Interactive lab',[{cards:['tools/'+tool]}]]] : []),
       ['Try it',[exercise,assessment,{cards:['projects/'+moduleProjects[i]]}]],
-    ]), ['References',[{links:sources.split(' ').map(key=>refs[key])}]],
+    ]), ...(technicalNote ? [technicalNote] : []), ['References',[{links:sources.split(' ').map(key=>refs[key])}]],
     ],
   };
 }));
