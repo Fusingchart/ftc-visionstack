@@ -39,3 +39,18 @@ test('search inventory includes real content and excludes its own route', async 
   assert.ok(index.find(page=>page.path==='season').text.includes('NECTAR'));
   assert.ok(index.find(page=>page.path==='course/lesson-7-3').text.includes('MegaTag'));
 });
+
+test('lessons render full explanations and fundamentals preserve worked-example links', async () => {
+  const course = pages.filter(({path}) => path.startsWith('course/lesson-'));
+  for (const {path, sections} of course) {
+    const example = sections.find(([heading]) => heading === 'Worked example');
+    assert.ok(example, path);
+    assert.ok(example[1].filter(block => typeof block === 'string').length >= 2, path);
+    assert.ok(sections[0][1].some(block => typeof block === 'string' && block.length > 120), path);
+  }
+  const html = await readFile('dist/course/lesson-1-1/index.html', 'utf8');
+  assert.match(html, /id="worked-example"/);
+  assert.match(html, /<table class="lesson-table"><caption>/);
+  assert.match(html, /<th scope="col">Camera frame<\/th>/);
+  assert.match(html, /<ol><li>Open the telemetry viewer/);
+});
