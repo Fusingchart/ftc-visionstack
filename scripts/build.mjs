@@ -18,7 +18,20 @@ function render(page) {
     const markers = item.filters ? ' data-filters="' + escape(JSON.stringify(item.filters)) + '"' : '';
     return '<article class="card"' + markers + '>' + link(path,item.title) + '<p>' + escape(item.description) + '</p></article>';
   }).join('') + '</div>';
-  const sections = (page.sections ?? []).map(([heading, body]) => '<section id="' + anchor(heading) + '"><h2>' + escape(heading) + ' <a class="anchor" aria-label="Link to this section" href="#' + anchor(heading) + '">#</a></h2>' + body.map(paragraph => typeof paragraph === 'string' ? '<p>' + escape(paragraph) + '</p>' : paragraph.code ? '<div class="code"><button data-copy>Copy code</button><pre tabindex="0" aria-label="Source code"><code>' + escape(paragraph.code) + '</code></pre></div>' : paragraph.links ? '<ul>' + paragraph.links.map(([label, url]) => '<li><a href="' + escape(url) + '">' + escape(label) + '</a></li>').join('') + '</ul>' : cards(paragraph.cards)).join('') + '</section>').join('');
+  const renderBlock = block => {
+    if (typeof block === 'string') return '<p>' + escape(block) + '</p>';
+    if (block.code) return '<div class="code"><button data-copy>Copy code</button><pre tabindex="0" aria-label="Source code"><code>' + escape(block.code) + '</code></pre></div>';
+    if (block.links) return '<ul>' + block.links.map(([label, url]) => '<li><a href="' + escape(url) + '">' + escape(label) + '</a></li>').join('') + '</ul>';
+    if (block.steps) return '<ol>' + block.steps.map(step => '<li>' + escape(step) + '</li>').join('') + '</ol>';
+    if (block.table) {
+      const {caption, headers, rows} = block.table;
+      return '<table class="lesson-table"><caption>' + escape(caption) + '</caption><thead><tr>' +
+        headers.map(header => '<th scope="col">' + escape(header) + '</th>').join('') +
+        '</tr></thead><tbody>' + rows.map(row => '<tr>' + row.map(cell => '<td>' + escape(cell) + '</td>').join('') + '</tr>').join('') + '</tbody></table>';
+    }
+    return cards(block.cards);
+  };
+  const sections = (page.sections ?? []).map(([heading, body]) => '<section id="' + anchor(heading) + '"><h2>' + escape(heading) + ' <a class="anchor" aria-label="Link to this section" href="#' + anchor(heading) + '">#</a></h2>' + body.map(renderBlock).join('') + '</section>').join('');
   const title = page.path ? page.title + ' | ' + config.name : config.name + ' | FTC Computer Vision';
   const canonical = new URL(page.path ? page.path + '/' : '', base).href;
   const parent = page.path.includes('/') ? page.path.split('/')[0] : '';
